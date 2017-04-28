@@ -1,18 +1,23 @@
 :- module(
   html_ext,
   [
+    deck//2,              % :Card_1, +Items
+    deck//3,              % +Attrs, :Card_1, +Items
     html_call//1,         % :Html_0
+    html_call//2,         % :Html_1, +Arg1
+    html_maplist//2,      % :Html_1, +Args1
     html_thousands//1,    % +Integer
     image//1,             % +Spec
     image//2,             % +Spec, +Attrs
     meta_authors//0,
     meta_description//1,  % +Desc
     navbar//3,            % :Brand_0, :Menu_0, :Right_0
-    open_graph//2         % +Key, +Value
+    open_graph//2,        % +Key, +Value
     tooltip//2,           % +String, :Html_0
     twitter_follow_img//0
   ]
 ).
+:- reexport(library(http/html_head)).
 :- reexport(library(http/html_write)).
 
 /** <module> HTML extensions
@@ -31,6 +36,7 @@ html({|html||...|}).
 :- use_module(library(apply)).
 :- use_module(library(http/http_path)).
 :- use_module(library(lists)).
+:- use_module(library(settings)).
 :- use_module(library(uri_ext)).
 
 :- html_meta
@@ -42,6 +48,12 @@ html({|html||...|}).
     html:author/1,
     nlp:nlp_string0/3.
 
+:- meta_predicate
+    deck(3, +, ?, ?),
+    deck(+, 3, +, ?, ?),
+    html_call(3, +, ?, ?),
+    html_maplist(3, +, ?, ?).
+
 :- multifile
     html:author/1,
     nlp:nlp_string0/3.
@@ -51,7 +63,7 @@ nlp:nlp_string0(nl, follow_us_on_x, "Volg ons op ~s").
 
 :- setting(
      html:twitter_profile,
-     term,
+     any,
      _,
      "Optional Twitter profile name."
    ).
@@ -66,11 +78,37 @@ nlp:nlp_string0(nl, follow_us_on_x, "Volg ons op ~s").
 
 
 
+%! deck(:Card_1, +Items)// is det.
+%! deck(+Attrs, :Card_1, +Items)// is det.
+
+deck(Card_1, L) -->
+  deck([], Card_1, L).
+
+
+deck(Attrs1, Card_1, L) -->
+  {merge_attrs([class=['card-columns']], Attrs1, Attrs2)},
+  html(div(Attrs2, \html_maplist(Card_1, L))).
+
+
+
 %! html_call(:Html_0)// is det.
+%! html_call(:Html_1, +Arg1)// is det.
 
 html_call(Html_0, X, Y) :-
   call(Html_0, X, Y).
 
+
+html_call(Html_1, Arg1, X, Y) :-
+  call(Html_1, Arg1, X, Y).
+
+
+
+%! html_maplist(:Html_1, +Args1) .
+
+html_maplist(_, []) --> !, [].
+html_maplist(Html_1, [H|T]) -->
+  html_call(Html_1, H),
+  html_maplist(Html_1, T).
 
 
 %! html_thousands(+Integer)// is det.
