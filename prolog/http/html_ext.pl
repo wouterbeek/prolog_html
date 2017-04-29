@@ -34,25 +34,110 @@ html({|html||...|}).
 */
 
 :- use_module(library(apply)).
+:- use_module(library(debug)).
+:- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_path)).
+:- use_module(library(http/http_resource)).
+:- use_module(library(http/jquery)).
 :- use_module(library(lists)).
 :- use_module(library(settings)).
 :- use_module(library(uri_ext)).
 
-:- html_meta
-   html_call(html, ?, ?),
-   navbar(html, html, html, ?, ?),
-   tooltip(+, html, ?, ?).
+% jQuery
+:- set_setting(jquery:version, '3.2.1.min').
 
 :- dynamic
     html:author/1,
     nlp:nlp_string0/3.
 
-:- meta_predicate
+:- html_meta
     deck(3, +, ?, ?),
     deck(+, 3, +, ?, ?),
+    html_call(html, ?, ?),
     html_call(3, +, ?, ?),
-    html_maplist(3, +, ?, ?).
+    html_maplist(3, +, ?, ?),
+    navbar(html, html, html, ?, ?),
+    tooltip(+, html, ?, ?).
+
+% Bootstrap
+:- if(debugging(css(bootstrap))).
+  :- html_resource(
+       css(bootstrap),
+       [requires([css('bootstrap.css')]),virtual(true)]
+     ).
+:- else.
+  :- html_resource(
+       css(bootstrap),
+       [requires([css('bootstrap.min.css')]),virtual(true)]
+     ).
+:- endif.
+:- if(debugging(js(bootstrap))).
+  :- html_resource(
+       js(bootstrap),
+       [
+         ordered(true),
+         requires([jquery,tether,js('bootstrap.js')]),
+         virtual(true)
+       ]
+     ).
+:- else.
+  :- html_resource(
+       js(bootstrap),
+       [
+         ordered(true),
+         requires([jquery,tether,js('bootstrap.min.js')]),
+         virtual(true)
+       ]
+     ).
+:- endif.
+:- html_resource(
+     bootstrap,
+     [requires([css(bootstrap),js(bootstrap)]),virtual(true)]
+   ).
+
+% FontAwesome
+:- if(debugging(css('font-awesome'))).
+  :- html_resource(
+       css('font-awesome'),
+       [requires([css('font-awesome-4.7.0.css')]),virtual(true)]
+     ).
+:- else.
+  :- html_resource(
+       css('font-awesome'),
+       [requires([css('font-awesome-4.7.0.min.css')]),virtual(true)]
+     ).
+:- endif.
+:- html_resource(
+     'font-awesome',
+     [requires([css('font-awesome')]),virtual(true)]
+   ).
+
+% HTML extensions
+:- html_resource(
+     html_ext,
+     [
+       ordered(true),
+       requires([bootstrap,'font-awesome',css('html_ext.css')]),
+       virtual(true)
+     ]
+   ).
+
+% Tether
+:- if(debugging(js(tether))).
+  :- html_resource(
+       js(tether),
+       [requires([js('tether-1.3.3.js')]),virtual(true)]
+     ).
+:- else.
+  :- html_resource(
+       js(tether),
+       [requires([js('tether-1.3.3.min.js')]),virtual(true)]
+     ).
+:- endif.
+:- html_resource(
+     tether,
+     [requires([js(tether)]),virtual(true)]
+   ).
 
 :- multifile
     html:author/1,
@@ -282,7 +367,7 @@ meta(Name, Content) -->
 %
 %   - link_to_id(<HANDLE-ID>,<QUERY>)
 %
-%   - Compound terms processed by http_absolute_location/2
+%   - Compound terms processed by http_absolute_location/3
 %
 %   - atoms
 %
@@ -290,12 +375,13 @@ meta(Name, Content) -->
 % and port are the local schema, host and port.
 
 uri_specification(link_to_id(HandleId), Uri2) :- !,
-  http_link_to_id(HandleId, Uri1),
+  http_link_to_id(HandleId, [], Uri1),
   uri_remove_host(Uri1, Uri2).
-uri_specification(link_to_id(HandleId,Query0), Uri2) :- !,
-  maplist(rdf_query_term, Query0, Query), %HACK
-  http_link_to_id(HandleId, Query, Uri1),
-  uri_remove_host(Uri1, Uri2).
+% @tbd
+%uri_specification(link_to_id(HandleId,Query0), Uri2) :- !,
+%  maplist(rdf_query_term, Query0, Query), %HACK
+%  http_link_to_id(HandleId, Query, Uri1),
+%  uri_remove_host(Uri1, Uri2).
 uri_specification(Spec, Uri2) :-
-  http_absolute_location(Spec, Uri1),
+  http_absolute_location(Spec, Uri1, []),
   uri_remove_host(Uri1, Uri2).
