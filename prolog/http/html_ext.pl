@@ -57,7 +57,8 @@ html({|html||...|}).
     html_call(3, +, ?, ?),
     html_maplist(3, +, ?, ?),
     navbar(html, html, html, ?, ?),
-    tooltip(+, html, ?, ?).
+    tooltip(+, html, ?, ?),
+    twitter_follow0(+, html, ?, ?).
 
 % Bootstrap
 :- if(debugging(css(bootstrap))).
@@ -310,7 +311,7 @@ nlp_string(Name, Args, String) :-
 
 twitter_follow0(User, Html_0) -->
   {twitter_user_uri0(User, Uri)},
-  html(a(href=Uri, html_call(Html_0))).
+  html(a(href=Uri, Html_0)).
 
 twitter_img0 -->
   image(img('twitter.png'), [alt="Twitter"]).
