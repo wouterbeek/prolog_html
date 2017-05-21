@@ -4,6 +4,9 @@
     deck//2,               % :Card_1, +Items
     deck//3,               % +Attrs, :Card_1, +Items
     ellipsis//2,           % +Str, +MaxLen
+    external_link//1,      % +Uri
+    external_link//2,      % +Uri, :Content_0
+    external_link//3,      % +Uri, +Attrs, :Content_0
     external_link_icon//1, % +Uri
     flag_icon//1,          % +LTag
     html_call//1,          % :Html_0
@@ -14,6 +17,9 @@
     html_thousands//1,     % +Integer
     image//1,              % +Spec
     image//2,              % +Spec, +Attrs
+    internal_link//1,      % +Spec
+    internal_link//2,      % +Spec, :Content_0
+    internal_link//3,      % +Spec, +Attrs, :Content_0
     link//1,               % +Pair
     link//2,               % +Attrs, +Pair
     mail_icon//1,          % +Uri
@@ -72,11 +78,11 @@ html({|html||...|}).
     nlp:nlp_string0/3.
 
 :- html_meta
-   deck(3, +, ?, ?),
-   deck(+, 3, +, ?, ?),
+   external_link(+, html, ?, ?),
+   external_link(+, +, html, ?, ?),
    html_call(html, ?, ?),
-   html_call(3, +, ?, ?),
-   html_maplist(3, +, ?, ?),
+   internal_link(+, html, ?, ?),
+   internal_link(+, +, html, ?, ?),
    navbar(html, html, html, ?, ?),
    table(html, ?, ?),
    table(html, html, ?, ?),
@@ -167,6 +173,10 @@ html({|html||...|}).
    ).
 
 :- meta_predicate
+    deck(3, +, ?, ?),
+    deck(+, 3, +, ?, ?),
+    html_call(3, +, ?, ?),
+    html_maplist(3, +, ?, ?),
     table_content(3, +, ?, ?),
     table_data_cell(3, +, ?, ?),
     table_data_row(3, +, ?, ?),
@@ -175,6 +185,8 @@ html({|html||...|}).
 
 :- multifile
     html:author/1,
+    html:html_hook//1,
+    html:html_hook//2,
     nlp:nlp_string0/3.
 
 nlp:nlp_string0(en, follow_us_on_x, "Follow us on ~s").
@@ -209,6 +221,29 @@ deck(Attrs1, Card_1, L) -->
 ellipsis(Str, MaxLen) -->
   {string_ellipsis(Str, MaxLen, Ellipsis)},
   ({Str == Ellipsis} -> html(Str) ; tooltip(Str, Ellipsis)).
+
+
+
+%! external_link(+Uri)// is det.
+%! external_link(+Uri, :Content_0)// is det.
+%! external_link(+Uri, +Attrs, :Content_0)// is det.
+%
+% Generates an HTML link to an external resource.
+%
+% When Icon is `true` the fact that the link points to an external
+% resource is indicated by a link icon (default is `false`).
+
+external_link(Uri) -->
+  external_link(Uri, Uri).
+
+
+external_link(Uri, Content_0) -->
+  external_link(Uri, [], Content_0).
+
+
+external_link(Uri, Attrs1, Content_0) -->
+  {merge_attrs(Attrs1, [href=Uri,target='_blank'], Attrs2)},
+  html(a(Attrs2, Content_0)).
 
 
 
@@ -287,6 +322,49 @@ html_date_time(Something, Opts) -->
     date_time_masks(Masks, DT, MaskedDT)
   },
   html(time(datetime=MachineString, \html_human_date_time(MaskedDT, Opts))).
+
+
+
+%! html_hook(+Term)// is det.
+%! html_hook(+Opts, +Term)// is det.
+
+html_hook(Term) -->
+  html_hook(_{}, Term).
+
+
+html_hook(Opts, Term) -->
+  html:html_hook(Opts, Term), !.
+html_hook(_, Term) -->
+  html:html_hook(Term), !.
+html_hook(_, Html_0) -->
+  html_call(Html_0).
+
+% atom
+html:html_hook(A) -->
+  {atom(A)}, !,
+  html(A).
+% code
+html:html_hook(code(String)) -->
+  html_code(String).
+% empty
+html:html_hook(empty) -->
+  html([]).
+% IRI
+html:html_hook(iri(Iri)) -->
+  external_link(Iri).
+% set
+html:html_hook(set(Set)) -->
+  html_set(Set).
+% string
+html:html_hook(String) -->
+  {string(String)},
+  html(String).
+% thousands
+html:html_hook(thousands(N)) -->
+  html_thousands(N).
+% URI
+html:html_hook(uri(Uri)) -->
+  html:html_hook(iri(Uri)).
 
 
 
@@ -371,6 +449,28 @@ image(Spec, Attrs1) -->
     merge_attrs(Attrs1, [src=Uri], Attrs2)
   },
   html(img(Attrs2, [])).
+
+
+
+%! internal_link(+Spec)// is det.
+%! internal_link(+Spec, :Content_0)// is det.
+%! internal_link(+Spec, +Attrs, :Content_0)// is det.
+
+internal_link(Spec) -->
+  internal_link(Spec, _).
+
+
+internal_link(Spec, Content_0) -->
+  internal_link(Spec, [], Content_0).
+
+
+internal_link(Spec, Attrs1, Content0_0) -->
+  {
+    uri_specification(Spec, Uri),
+    merge_attrs(Attrs1, [href=Uri], Attrs2),
+    (var_goal(Content0_0) -> Content_0 = Uri ; Content_0 = Content0_0)
+  },
+  html(a(Attrs2, Content_0)).
 
 
 
@@ -644,11 +744,9 @@ meta(Name, Content) -->
 uri_specification(link_to_id(HandleId), Uri2) :- !,
   http_link_to_id(HandleId, [], Uri1),
   uri_remove_host(Uri1, Uri2).
-% @tbd
-%uri_specification(link_to_id(HandleId,Query0), Uri2) :- !,
-%  maplist(rdf_query_term, Query0, Query), %HACK
-%  http_link_to_id(HandleId, Query, Uri1),
-%  uri_remove_host(Uri1, Uri2).
+uri_specification(link_to_id(HandleId,QueryComps), Uri2) :- !,
+  http_link_to_id(HandleId, QueryComps, Uri1),
+  uri_remove_host(Uri1, Uri2).
 uri_specification(Spec, Uri2) :-
   http_absolute_location(Spec, Uri1, []),
   uri_remove_host(Uri1, Uri2).
