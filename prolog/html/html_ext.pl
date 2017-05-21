@@ -21,7 +21,16 @@
     meta_description//1,   % +Desc
     navbar//3,             % :Brand_0, :Menu_0, :Right_0
     open_graph//2,         % +Key, +Value
-    tooltip//2,            % +String, :Html_0
+    table//1,              % :Body_0
+    table//2,              % :Header_0, :Body_0
+    table//3,              % :Caption_0, :Header_0, :Body_0
+    table_caption//1,      % :Caption_0
+    table_content//2,      % :Cell_1, +Rows
+    table_data_row//1,     % +Row
+    table_data_row//2,     % :Cell_1, +Row
+    table_header_row//1,   % +Row
+    table_header_row//2,   % :Cell_1, +Row
+    tooltip//2,            % +String, :Content_0
     twitter_follow_img//0
   ]
 ).
@@ -63,14 +72,19 @@ html({|html||...|}).
     nlp:nlp_string0/3.
 
 :- html_meta
-    deck(3, +, ?, ?),
-    deck(+, 3, +, ?, ?),
-    html_call(html, ?, ?),
-    html_call(3, +, ?, ?),
-    html_maplist(3, +, ?, ?),
-    navbar(html, html, html, ?, ?),
-    tooltip(+, html, ?, ?),
-    twitter_follow0(+, html, ?, ?).
+   deck(3, +, ?, ?),
+   deck(+, 3, +, ?, ?),
+   html_call(html, ?, ?),
+   html_call(3, +, ?, ?),
+   html_maplist(3, +, ?, ?),
+   navbar(html, html, html, ?, ?),
+   table(html, ?, ?),
+   table(html, html, ?, ?),
+   table(html, html, html, ?, ?),
+   table_caption(html, ?, ?),
+   table_header(html, ?, ?),
+   tooltip(+, html, ?, ?),
+   twitter_follow0(+, html, ?, ?).
 
 % Bootstrap
 :- if(debugging(css(bootstrap))).
@@ -151,6 +165,13 @@ html({|html||...|}).
      tether,
      [requires([js(tether)]),virtual(true)]
    ).
+
+:- meta_predicate
+    table_content(3, +, ?, ?),
+    table_data_cell(3, +, ?, ?),
+    table_data_row(3, +, ?, ?),
+    table_header_cell(3, +, ?, ?),
+    table_header_row(3, +, ?, ?).
 
 :- multifile
     html:author/1,
@@ -442,10 +463,104 @@ open_graph(Key0, Val) -->
 
 
 
-%! tooltip(+String, :Html_0)// is det.
+%! table(:Body_0)// is det.
+%! table(:Header_0, :Body_0)// is det.
+%! table(:Caption_0, :HeaderRow_0, :Body_0)// is det.
 
-tooltip(String, Html_0) -->
-  html(span(['data-toggle'=tooltip,title=String], Html_0)).
+table(Body_0) -->
+  table(_, Body_0).
+
+
+table(Header_0, Body_0) -->
+  table(_, Header_0, Body_0).
+
+
+table(Caption_0, Header_0, Body_0) -->
+  html(
+    table(class=[block,table,'table-condensed','table-striped'], [
+      \table_caption(Caption_0),
+      \table_header(Header_0),
+      tbody(Body_0)
+    ])
+  ).
+
+
+
+%! table_caption(:Caption_0)// is det.
+
+table_caption(Caption_0) -->
+  {var_goal(Caption_0)}, !, [].
+table_caption(Caption_0) -->
+  html(Caption_0).
+
+
+
+%! table_content(:Cell_1, +Rows)// is det.
+
+table_content(Cell_1, [head(HeaderRow)|DataRows]) -->
+  table(
+    \table_header_row(Cell_1, HeaderRow),
+    \html_maplist(table_data_row(Cell_1), DataRows)
+  ).
+
+
+
+%! table_data_cell(+Term)// is det.
+%! table_data_cell(:Cell_1, +Term)// is det.
+
+table_data_cell(Term) -->
+  table_data_cell(html_hook, Term).
+
+
+table_data_cell(Cell_1, Term) -->
+  html(td(\html_call(Cell_1, Term))).
+
+
+
+%! table_data_row(+Row)// is det.
+%! table_data_row(:Cell_1, +Row)// is det.
+
+table_data_row(Row) -->
+  table_data_row(html_hook, Row).
+
+
+table_data_row(Cell_1, Row) -->
+  html(tr(\html_maplist(table_data_cell(Cell_1), Row))).
+
+
+
+%! table_header(:Header_0)// is det.
+
+table_header(Header_0) -->
+  {var_goal(Header_0)}, !, [].
+table_header(Header_0) -->
+  html(thead(Header_0)).
+
+
+
+%! table_header_cell(:Cell_1, +Term)// is det.
+
+table_header_cell(Cell_1, Term) -->
+  html(th(\html_call(Cell_1, Term))).
+
+
+
+%! table_header_row(+Row)// is det.
+%! table_header_row(:Cell_1, +Row)// is det.
+
+table_header_row(Row) -->
+  table_header_row(html_hook, Row).
+
+
+table_header_row(Cell_1, Row) -->
+  html(tr(\html_maplist(table_header_cell(Cell_1), Row))).
+
+
+
+%! tooltip(+String, :Content_0)// is det.
+
+tooltip(String, Content_0) -->
+  html(span(['data-toggle'=tooltip,title=String], Content_0)).
 
 
 
@@ -460,9 +575,9 @@ twitter_follow_img -->
   tooltip(String, \twitter_follow0(User, \twitter_img0)).  
 twitter_follow_img --> [].
 
-twitter_follow0(User, Html_0) -->
+twitter_follow0(User, Content_0) -->
   {twitter_user_uri0(User, Uri)},
-  html(a(href=Uri, Html_0)).
+  html(a(href=Uri, Content_0)).
 
 twitter_img0 -->
   image(img('twitter.png'), [alt="Twitter"]).
@@ -537,3 +652,14 @@ uri_specification(link_to_id(HandleId), Uri2) :- !,
 uri_specification(Spec, Uri2) :-
   http_absolute_location(Spec, Uri1, []),
   uri_remove_host(Uri1, Uri2).
+
+
+
+%! var_goal(@Term) is semidet.
+%
+% Succeeds for a variable or a module-prefixed variable.
+
+var_goal(X) :-
+  var(X), !.
+var_goal(_:X) :-
+  var(X).
