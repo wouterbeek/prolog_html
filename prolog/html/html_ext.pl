@@ -68,6 +68,7 @@ html({|html||...|}).
 :- use_module(library(http/jquery)).
 :- use_module(library(lists)).
 :- use_module(library(settings)).
+:- use_module(library(string_ext)).
 :- use_module(library(uri/uri_ext)).
 
 % jQuery
