@@ -229,6 +229,10 @@ nav {
   min-height: 50px;
 }
 
+nav .navbar-brand {
+  margin-left: 5px;
+}
+
 nav .brand-txt {
   margin-top: 5px;
   vertical-align: middle;
@@ -512,4 +516,14 @@ body,
 
 path.leaflet-interactive:hover {
   fill: black;
+}
+
+
+
+/* Pagination */
+
+.page-text {
+  line-height: 1.25;
+  margin-left: -1px;
+  padding: .5rem;
 }

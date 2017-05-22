@@ -4,4 +4,4 @@ keywords([atom,dictionary]).
 name(html_ext).
 requires(swipl_ext).
 title('Extensions for HTML support in SWI-Prolog.').
-version('0.0.8').
+version('0.0.9').

@@ -67,6 +67,7 @@ html({|html||...|}).
 :- use_module(library(http/http_resource)).
 :- use_module(library(http/jquery)).
 :- use_module(library(lists)).
+:- use_module(library(nlp/nlp_lang)).
 :- use_module(library(settings)).
 :- use_module(library(string_ext)).
 :- use_module(library(uri/uri_ext)).
@@ -742,9 +743,8 @@ meta(Name, Content) -->
 % Whenever possible, the URI is abbreviated in case its schema, host
 % and port are the local schema, host and port.
 
-uri_specification(link_to_id(HandleId), Uri2) :- !,
-  http_link_to_id(HandleId, [], Uri1),
-  uri_remove_host(Uri1, Uri2).
+uri_specification(link_to_id(HandleId), Uri) :- !,
+  uri_specification(link_to_id(HandleId,[]), Uri).
 uri_specification(link_to_id(HandleId,QueryComps), Uri2) :- !,
   http_link_to_id(HandleId, QueryComps, Uri1),
   uri_remove_host(Uri1, Uri2).
