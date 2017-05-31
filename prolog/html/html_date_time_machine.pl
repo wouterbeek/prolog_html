@@ -1,7 +1,7 @@
 :- module(
   html_date_time_machine,
   [
-    html_machine_date_time/2 % +DT, -MachineString
+    html_date_time_machine/2 % +DT, -MachineString
   ]
 ).
 
@@ -195,9 +195,9 @@ global_date_and_time("2011-11-12T06:54:39-08:00", 2011, 11, 12, 6, 54, 39, -480)
 
 
 
-%! html_machine_date_time(+DT, -MachineString) is det.
+%! html_date_time_machine(+DT, -MachineString) is det.
 
-html_machine_date_time(DT, MachineString):-
+html_date_time_machine(DT, MachineString):-
   once(string_phrase(date(DT), MachineString)).
 
 
@@ -294,10 +294,10 @@ seconds_non_zero(S) -->
   ->  ""
   ;   ".",
       {
-        pos(SFrac, Ds0),
-        list_truncate(Ds0, 3, Ds)
+        fractional_weights(SFrac, Weights0),
+        list_truncate(Weights0, 3, Weights)
       },
-      '*'(digit, Ds)
+      '*'(digit_weight, Weights)
   ).
 
 :- begin_tests(time).

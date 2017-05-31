@@ -1,8 +1,8 @@
 :- module(
   html_date_time_human,
   [
-    html_human_date_time//2, % +DT, +Opts
-    html_human_today//1      % +Opts
+    html_date_time_human//2, % +DT, +Opts
+    html_today_human//1      % +Opts
   ]
 ).
 
@@ -25,9 +25,9 @@ DCG rules for parsing/generating human-readable HTML5 dates.
 
 
 
-%! html_human_date_time(+DT, +Opts)// is det.
+%! html_date_time_human(+DT, +Opts)// is det.
 
-html_human_date_time(date_time(Y,Mo,Da,H,Mi,S,Off), Opts) -->
+html_date_time_human(date_time(Y,Mo,Da,H,Mi,S,Off), Opts) -->
   (   {ground(date(Y,Mo,Da,H,Mi,S,Off))}
   ->  global_date_and_time(Y, Mo, Da, H, Mi, S, Off, Opts)
   ;   {ground(date(Y,Mo,Da,H,Mi,S))}
@@ -48,11 +48,11 @@ html_human_date_time(date_time(Y,Mo,Da,H,Mi,S,Off), Opts) -->
 
 
 
-%! html_human_today(+Opts)// is det.
+%! html_today_human(+Opts)// is det.
 
-html_human_today(Opts) -->
+html_today_human(Opts) -->
   {get_date_time(DT)},
-  html_human_date_time(DT, Opts).
+  html_date_time_human(DT, Opts).
 
 
 
@@ -96,8 +96,8 @@ minute(Mi, _) -->
 
 month(Mo, Opts) -->
   {
-    get_dict(ltag, Opts, en, LTag),
-    get_dict(month_abbr, Opts, false, IsAbbr),
+    dict_get(ltag, Opts, en, LTag),
+    dict_get(month_abbr, Opts, false, IsAbbr),
     once(month_name(Mo, LTag, Abbr, Full)),
     (IsAbbr == true -> Month = Abbr ; Month = Full)
   },
@@ -118,7 +118,7 @@ month_day(Da, Opts) -->
   html(span(class='month-day', \month_day_inner(Da, Opts))).
 
 month_day_inner(Da, Opts) -->
-  {get_dict(ltag, Opts, nl)}, !,
+  {dict_get(ltag, Opts, nl)}, !,
   html(Da).
 month_day_inner(Da, Opts) -->
   ordinal(Da, Opts).
@@ -129,7 +129,7 @@ month_day_inner(Da, Opts) -->
 
 ordinal(N, Opts) -->
   {
-    get_dict(ltag, Opts, en, LTag),
+    dict_get(ltag, Opts, en, LTag),
     ordinal_suffix(N, LTag, Suffix)
   },
   html([N, sup([], Suffix)]).

@@ -14,6 +14,10 @@
     html_date_time//1,     % +Something
     html_date_time//2,     % +Something, +Opts
     html_maplist//2,       % :Html_1, +Args1
+    html_seplist//2,       % :Html_0, :Sep_0
+    html_seplist//3,       % :Html_1, :Sep_0, +Args
+    html_set//1,           % +Args
+    html_set//2,           % :Html_1, +Args
     html_thousands//1,     % +Integer
     image//1,              % +Spec
     image//2,              % +Spec, +Attrs
@@ -60,11 +64,10 @@ html({|html||...|}).
 :- use_module(library(apply)).
 :- use_module(library(date_time)).
 :- use_module(library(debug)).
+:- use_module(library(dict_ext)).
 :- use_module(library(html/html_date_time_human)).
 :- use_module(library(html/html_date_time_machine)).
-:- use_module(library(http/http_dispatch)).
-:- use_module(library(http/http_path)).
-:- use_module(library(http/http_resource)).
+:- use_module(library(http/http_server)).
 :- use_module(library(http/jquery)).
 :- use_module(library(lists)).
 :- use_module(library(nlp/nlp_lang)).
@@ -83,6 +86,9 @@ html({|html||...|}).
    external_link(+, html, ?, ?),
    external_link(+, +, html, ?, ?),
    html_call(html, ?, ?),
+   html_seplist(html, html, ?, ?),
+   html_seplist(3, html, +, ?, ?),
+   html_set(3, +, ?, ?),
    internal_link(+, html, ?, ?),
    internal_link(+, +, html, ?, ?),
    navbar(html, html, html, ?, ?),
@@ -319,11 +325,11 @@ html_date_time(Something) -->
 html_date_time(Something, Opts) -->
   {
     something_to_date_time(Something, DT),
-    html_machine_date_time(DT, MachineString),
-    get_dict(masks, Opts, [], Masks),
+    html_date_time_machine(DT, MachineString),
+    dict_get(masks, Opts, [], Masks),
     date_time_masks(Masks, DT, MaskedDT)
   },
-  html(time(datetime=MachineString, \html_human_date_time(MaskedDT, Opts))).
+  html(time(datetime=MachineString, \html_date_time_human(MaskedDT, Opts))).
 
 
 
@@ -347,7 +353,7 @@ html:html_hook(A) -->
   html(A).
 % code
 html:html_hook(code(String)) -->
-  html_code(String).
+  html(code(String)).
 % empty
 html:html_hook(empty) -->
   html([]).
@@ -376,6 +382,41 @@ html_maplist(_, []) --> !, [].
 html_maplist(Html_1, [H|T]) -->
   html_call(Html_1, H),
   html_maplist(Html_1, T).
+
+
+
+%! html_seplist(:Html_0, :Sep_0)// is det.
+%! html_seplist(:Html_1, :Sep_0, +L)// is det.
+
+html_seplist(Html_0, Sep_0) -->
+  Html_0,
+  Sep_0,
+  html_seplist(Html_0, Sep_0).
+html_seplist(Html_0, _) --> !,
+  Html_0.
+html_seplist(_, _) --> !, [].
+
+
+html_seplist(_, _, []) --> !, [].
+html_seplist(Html_1, _, [H]) --> !,
+  html_call(Html_1, H).
+html_seplist(Html_1, Sep_0, [H1,H2|T]) -->
+  html_call(Html_1, H1),
+  Sep_0,
+  html_seplist(Html_1, Sep_0, [H2|T]).
+
+
+
+%! html_set(+Args)// is det.
+%! html_set(:Html_1, +Args)// is det.
+
+html_set(Args) -->
+  html_set(html_hook, Args).
+
+
+html_set(Html_1, Args) -->
+  html([&(123),\html_seplist(Html_1, html(","), Args),&(125)]).
+
 
 
 %! html_thousands(+Integer)// is det.
