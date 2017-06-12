@@ -1,9 +1,10 @@
 :- module(
   html_ext,
   [
+    data_link//2,          % +Resource, :Html_0
+    data_link//3,          % +Resource, +Attrs, :Html_0
     deck//2,               % :Card_1, +Items
     deck//3,               % +Attrs, :Card_1, +Items
-    ellipsis//2,           % +Str, +MaxLen
     external_link//1,      % +Uri
     external_link//2,      % +Uri, :Content_0
     external_link//3,      % +Uri, +Attrs, :Content_0
@@ -13,12 +14,21 @@
     html_call//2,          % :Html_1, +Arg1
     html_date_time//1,     % +Something
     html_date_time//2,     % +Something, +Opts
+    html_ellipsis//2,      % +String, +MaxLen
     html_maplist//2,       % :Html_1, +Args1
+    html_nlp_string//1,    % +Name
+    html_page/2,           % :Head_0, :Body_0
+    html_page/3,           % +Context, :Head_0, :Body_0
     html_seplist//2,       % :Html_0, :Sep_0
     html_seplist//3,       % :Html_1, :Sep_0, +Args
     html_set//1,           % +Args
     html_set//2,           % :Html_1, +Args
+    html_space//0,
     html_thousands//1,     % +Integer
+    icon//1,                 % +Name
+    icon_button//1,          % +Name
+    icon_button//2,          % +Name, +Func
+    ignore//1,             % :Html_0
     image//1,              % +Spec
     image//2,              % +Spec, +Attrs
     internal_link//1,      % +Spec
@@ -31,6 +41,7 @@
     meta_description//1,   % +Desc
     navbar//3,             % :Brand_0, :Menu_0, :Right_0
     open_graph//2,         % +Key, +Value
+    pipe//0,
     table//1,              % :Body_0
     table//2,              % :Header_0, :Body_0
     table//3,              % :Caption_0, :Header_0, :Body_0
@@ -40,8 +51,7 @@
     table_data_row//2,     % :Cell_1, +Row
     table_header_row//1,   % +Row
     table_header_row//2,   % :Cell_1, +Row
-    tooltip//2,            % +String, :Content_0
-    twitter_follow_img//0
+    tooltip//2             % +String, :Content_0
   ]
 ).
 :- reexport(library(http/html_head)).
@@ -58,7 +68,7 @@ html({|html||...|}).
 ```
 
 @author Wouter Beek
-@version 2017/04-2017/05
+@version 2017/04-2017/06
 */
 
 :- use_module(library(apply)).
@@ -78,17 +88,18 @@ html({|html||...|}).
 % jQuery
 :- set_setting(jquery:version, '3.2.1.min').
 
-:- dynamic
-    html:author/1,
-    nlp:nlp_string0/3.
-
 :- html_meta
+   data_link(+, html, ?, ?),
+   data_link(+, +, html, ?, ?),
    external_link(+, html, ?, ?),
    external_link(+, +, html, ?, ?),
    html_call(html, ?, ?),
+   html_page(html, html),
+   html_page(+, html, html),
    html_seplist(html, html, ?, ?),
    html_seplist(3, html, +, ?, ?),
    html_set(3, +, ?, ?),
+   ignore(html, ?, ?),
    internal_link(+, html, ?, ?),
    internal_link(+, +, html, ?, ?),
    navbar(html, html, html, ?, ?),
@@ -97,8 +108,7 @@ html({|html||...|}).
    table(html, html, html, ?, ?),
    table_caption(html, ?, ?),
    table_header(html, ?, ?),
-   tooltip(+, html, ?, ?),
-   twitter_follow0(+, html, ?, ?).
+   tooltip(+, html, ?, ?).
 
 % Bootstrap
 :- if(debugging(css(bootstrap))).
@@ -194,20 +204,22 @@ html({|html||...|}).
 :- multifile
     html:author/1,
     html:html_hook//1,
-    html:html_hook//2,
-    nlp:nlp_string0/3.
-
-nlp:nlp_string0(en, follow_us_on_x, "Follow us on ~s").
-nlp:nlp_string0(nl, follow_us_on_x, "Volg ons op ~s").
-
-:- setting(
-     html:twitter_profile,
-     any,
-     _,
-     "Optional Twitter profile name."
-   ).
+    html:html_hook//2.
 
 
+
+
+
+%! data_link(+Resource, :Html_0)// is det.
+%! data_link(+Resource, +Attrs, :Html_0)// is det.
+
+data_link(Resource, Html_0) -->
+  data_link(Resource, [], Html_0).
+
+
+data_link(Resource, Attrs, Html_0) -->
+  {uri_resource(Uri, Resource)},
+  internal_link(Uri, Attrs, Html_0).
 
 
 
@@ -221,14 +233,6 @@ deck(Card_1, L) -->
 deck(Attrs1, Card_1, L) -->
   {merge_attrs([class=['card-columns']], Attrs1, Attrs2)},
   html(div(Attrs2, \html_maplist(Card_1, L))).
-
-
-
-%! ellipsis(+Str, +MaxLen)// is det.
-
-ellipsis(Str, MaxLen) -->
-  {string_ellipsis(Str, MaxLen, Ellipsis)},
-  ({Str == Ellipsis} -> html(Str) ; tooltip(Str, Ellipsis)).
 
 
 
@@ -333,6 +337,14 @@ html_date_time(Something, Opts) -->
 
 
 
+%! html_ellipsis(+String, +MaxLen)// is det.
+
+html_ellipsis(String, MaxLen) -->
+  {string_ellipsis(String, MaxLen, Ellipsis)},
+  ({String == Ellipsis} -> html(String) ; tooltip(String, Ellipsis)).
+
+
+
 %! html_hook(+Term)// is det.
 %! html_hook(+Opts, +Term)// is det.
 
@@ -385,6 +397,29 @@ html_maplist(Html_1, [H|T]) -->
 
 
 
+%! html_nlp_string(+Name)// is det.
+
+html_nlp_string(Name) -->
+  {nlp_string(Name, String)},
+  html(String).
+
+
+
+%! html_page(:Head_0, :Body_0) is det.
+%! html_page(+Context, :Head_0, :Body_0) is det.
+
+html_page(Head_0, Body_0) :-
+  html_page(cms([]), Head_0, Body_0).
+
+
+html_page(Context, Head_0, Body_0) :-
+  format(current_output, "X-Content-Type-Options: nosniff~n", []),
+  format(current_output, "X-Frame-Options: DENY~n", []),
+  format(current_output, "X-XSS-Protection: 1; mode=block~n", []),
+  reply_html_page(Context, Head_0, Body_0).
+
+
+
 %! html_seplist(:Html_0, :Sep_0)// is det.
 %! html_seplist(:Html_1, :Sep_0, +L)// is det.
 
@@ -419,6 +454,13 @@ html_set(Html_1, Args) -->
 
 
 
+%! html_space// is det.
+
+html_space -->
+  html(span(class=space, [])).
+
+
+
 %! html_thousands(+Integer)// is det.
 
 html_thousands(inf) --> !,
@@ -440,6 +482,24 @@ icon(pen) --> !,
 icon(Name) -->
   {icon_class(Name, Class)},
   html(span(class([fa,Class]), [])).
+
+
+
+%! icon_button(+Name)// is det.
+%! icon_button(+Name, +Func)// is det.
+
+icon_button(Name) -->
+  icon_button(Name, _).
+
+
+icon_button(Name, Func) -->
+  {
+    icon_class_title(Name, Class, Title),
+    (var(Func) -> Attrs = [] ; Attrs = [onclick=Func])
+  },
+  html(
+    button([class=[btn,'btn-default',af,Class],title=Title|Attrs], [])
+  ).
 
 
 
@@ -476,6 +536,14 @@ icon_table(user,           user,            "Log me in").
 icon_table(vote_down,     'thumbs-o-down',  "Vote up").
 icon_table(vote_up,       'thumbs-o-up',    "Vote down").
 icon_table(web,            globe,           "Visit Web site").
+
+
+
+%! ignore(:Html_0)// is det.
+
+ignore(Html_0) -->
+  html_call(Html_0), !.
+ignore(_) --> [].
 
 
 
@@ -606,6 +674,13 @@ open_graph(Key0, Val) -->
 
 
 
+%! pipe// is det.
+
+pipe -->
+  html([" ",span(class=pipe, "|")," "]).
+
+
+
 %! table(:Body_0)// is det.
 %! table(:Header_0, :Body_0)// is det.
 %! table(:Caption_0, :HeaderRow_0, :Body_0)// is det.
@@ -707,29 +782,6 @@ tooltip(String, Content_0) -->
 
 
 
-%! twitter_follow_img// is det.
-
-twitter_follow_img -->
-  {
-    setting(html:twitter_profile, User),
-    ground(User)
-  }, !,
-  {nlp_string(follow_us_on_x, ["Twitter"], String)},
-  tooltip(String, \twitter_follow0(User, \twitter_img0)).  
-twitter_follow_img --> [].
-
-twitter_follow0(User, Content_0) -->
-  {twitter_user_uri0(User, Uri)},
-  html(a(href=Uri, Content_0)).
-
-twitter_img0 -->
-  image(img('twitter.png'), [alt="Twitter"]).
-
-twitter_user_uri0(User, Uri) :-
-  uri_comps(Uri, uri(https,'twitter.com',[User],_,_)).
-
-
-
 
 
 % HELPERS %
@@ -766,6 +818,33 @@ ensure_list(Elem, [Elem]).
 
 meta(Name, Content) -->
   html(meta([name=Name,content=Content], [])).
+
+
+
+%! row_1(:ContentA_0)// is det.
+%! row_1(+WidthsA, :ContentA_0)// is det.
+%! row_1(+Attrs, +WidthsA, :ContentA_0)// is det.
+
+row_1(ContentA_0) -->
+  row_1(12, ContentA_0).
+
+
+row_1(WidthsA, ContentA_0) -->
+  row_1([], WidthsA, ContentA_0).
+
+
+row_1(Attrs1, WidthsA, ContentA_0) -->
+  {
+    merge_attrs(Attrs1, [class='container-fluid'], Attrs2),
+    widths(WidthsA, ClassesA)
+  },
+  html(
+    div(Attrs2,
+      div(class=row,
+        div(class=[col|ClassesA], ContentA_0)
+      )
+    )
+  ).
 
 
 
