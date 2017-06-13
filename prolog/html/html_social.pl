@@ -61,7 +61,7 @@ twitter_follow_img -->
     ground(User)
   }, !,
   {nlp_string(follow_us_on_x, ["Twitter"], String)},
-  tooltip(String, \twitter_follow0(User, \twitter_img0)).  
+  tooltip(String, \twitter_follow0(User, \twitter_img0)).
 twitter_follow_img --> [].
 
 
