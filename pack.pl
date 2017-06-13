@@ -4,4 +4,4 @@ keywords(['HTML']).
 name(html_ext).
 requires(swipl_ext).
 title('Extended HTML support for SWI-Prolog.').
-version('0.0.11').
+version('0.0.12').
