@@ -179,50 +179,6 @@ q:after {
 
 
 
-/* User menu */
-
-@media (min-width: 1150px) {
-  #user-menu {
-    margin-right: 5px;
-  }
-}
-@media (max-width: 1150px) {
-  #user-menu {
-    text-align: center;
-  }
-}
-
-#user-menu a {
-  padding-bottom: 7px;
-  padding-top: 7px;
-}
-
-#user-menu img {
-  height: 35px;
-  margin-right: 10px;
-  width: 35px;
-}
-
-
-
-/* User page: Header */
-
-article header img {
-  border-radius: 100px;
-  height: 200px;
-  width: 200px;
-}
-li[typeof="sbo:Author"] {
-  vertical-align: middle;
-}
-li[typeof="sbo:Author"] img {
-  border-radius: 150px;
-  height: 150px;
-  width: 150px;
-}
-
-
-
 /* Navigation bar */
 
 nav {
@@ -231,6 +187,11 @@ nav {
 
 nav .navbar-brand {
   margin-left: 5px;
+}
+
+nav .navbar-brand img {
+  height: 40px;
+  width: 40px;
 }
 
 nav .brand-txt {
@@ -272,20 +233,6 @@ nav .nav-link a:active,
 nav .nav-link a:focus,
 nav .nav-link a:visited {
   color: black;
-}
-
-
-
-/* Social buttons */
-
-.social-btn {
-  display: inline-block;
-  padding: 10px;
-  position: relative;
-}
-.social-btn a img {
-  max-height: 40px;
-  max-width: 40px;
 }
 
 
@@ -400,85 +347,6 @@ body footer li {
 }
 
 
-
-
-
-/* Comments */
-
-/* Display a content-wide border above the comments section. */
-.comments {
-  border-color: rgba(0, 0, 0, 0.1);
-  border-style: solid;
-  border-width: 1px 0 0 0;
-  margin: 0 auto;
-  width: 550px;
-}
-
-
-/* Comments: Existing ones */
-
-.votes {
-  margin-left: 100px;
-}
-
-.vote-amount {
-  margin-left: 5px;
-  margin-right: 5px;
-}
-
-.comment-image {
-  margin-left: 440px;
-}
-
-.comment-image .user-image img {
-  border-radius: 30px;
-  height: 60px;
-  width: 60px;
-}
-
-.comment-content {
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  color: #444444;
-  float: left;
-  line-height: 1.8em;
-  min-height: 60px;
-  width: 460px;
-}
-
-
-/* Comments: New ones */
-
-#add-a-new-comment, .comment-header {
-  font-size: 90%;
-}
-
-#create-comment-content textarea {
-  height: 60px;
-  width: 520px;
-}
-
-#create-comment-content {
-  float: left;
-}
-
-/* Toolbars appear to the right. */
-#create-comment-toolbar, .edit-comment-toolbar {
-  float: right;
-}
-
-/* Toolbar buttons all have the same size. */
-#create-comment-button, #cancel-comment-button,
-.update-comment-button, .delete-comment-button,
-.vote-down, .vote-up {
-  height: 30px;
-  width: 30px;
-}
-
-/* Toolbar buttons that appear on the next line. */
-#cancel-comment-button, .delete-comment-button {
-  clear: both;
-  display: block;
-}
 
 
 

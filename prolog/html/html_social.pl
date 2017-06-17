@@ -15,6 +15,7 @@
 */
 
 :- use_module(library(html/html_ext)).
+:- use_module(library(http/http_server)).
 :- use_module(library(nlp/nlp_lang)).
 :- use_module(library(settings)).
 :- use_module(library(uri/uri_ext)).
@@ -27,6 +28,8 @@
 
 nlp:nlp_string0(en, follow_us_on_x, "Follow us on ~s").
 nlp:nlp_string0(nl, follow_us_on_x, "Volg ons op ~s").
+nlp:nlp_string0(en, like_us_on_x, "Like us on ~s").
+nlp:nlp_string0(nl, like_us_on_x, "Like ons op ~s").
 
 :- setting(
      html:facebook_app_id,
@@ -115,7 +118,7 @@ facebook_img0 -->
 %! facebook_follow0(+ProfileName, :Content_0)// is det.
 
 facebook_follow0(ProfileName, Content_0) -->
-  {facebook_user_uri(ProfileName, Uri)},
+  {facebook_user_uri0(ProfileName, Uri)},
   html(a(href=Uri, Content_0)).
 
 

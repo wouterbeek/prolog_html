@@ -1279,7 +1279,7 @@ ensure_list(Elem, [Elem]).
 %
 %   - link_to_id(<HANDLE-ID>,<QUERY>)
 %
-%   - Compound terms processed by http_absolute_location/3
+%   - Compound terms processed by http_absolute_location/2
 %
 %   - atoms
 %
@@ -1292,7 +1292,7 @@ uri_specification(link_to_id(HandleId,QueryComps), Uri2) :- !,
   http_link_to_id(HandleId, QueryComps, Uri1),
   uri_remove_host(Uri1, Uri2).
 uri_specification(Spec, Uri2) :-
-  http_absolute_location(Spec, Uri1, []),
+  http_absolute_location(Spec, Uri1),
   uri_remove_host(Uri1, Uri2).
 
 
