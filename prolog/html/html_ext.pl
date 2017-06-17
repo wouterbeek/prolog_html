@@ -186,6 +186,59 @@ html({|html||...|}).
      [requires([css(bootstrap),js(bootstrap)]),virtual(true)]
    ).
 
+% Dropzone
+:- if(debugging(css(dropzone))).
+  :- html_resource(
+       css(dropzone),
+       [requires([css('dropzone-4.3.0.css')]),virtual(true)]
+     ).
+:- else.
+  :- html_resource(
+       css(dropzone),
+       [requires([css('dropzone-4.3.0.min.css')]),virtual(true)]
+     ).
+:- endif.
+:- if(debugging(js(dropzone))).
+  :- html_resource(
+       js(dropzone),
+       [requires([js('dropzone-4.3.0.js')]),virtual(true)]
+     ).
+:- else.
+  :- html_resource(
+       js(dropzone),
+       [requires([js('dropzone-4.3.0.min.js')]),virtual(true)]
+     ).
+:- endif.
+:- html_resource(
+     dropzone,
+     [requires([css(dropzone),js(dropzone)]),virtual(true)]
+   ).
+
+% Medium editor
+:- if(debugging(css(editor))).
+  :- html_resource(
+       css(editor),
+       [requires([css('medium-editor-5.23.0.css')]),virtual(true)]
+     ).
+:- else.
+  :- html_resource(
+       css(editor),
+       [requires([css('medium-editor-5.23.0.min.css')]),virtual(true)]
+     ).
+:- endif.
+:- if(debugging(js(editor))).
+  :- html_resource(
+       js(editor),
+       [requires([js('medium-editor-5.23.0.js')]),virtual(true)]
+     ).
+:- else.
+  :- html_resource(
+       js(editor),
+       [requires([js('medium-editor-5.23.0.min.js')]),virtual(true)]
+     ).
+:- endif.
+:- html_resource(editor, [requires([css(editor),js(editor)]),virtual(true)]).
+
 % FontAwesome
 :- if(debugging(css('font-awesome'))).
   :- html_resource(
