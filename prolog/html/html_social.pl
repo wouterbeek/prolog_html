@@ -30,19 +30,19 @@ nlp:nlp_string0(nl, follow_us_on_x, "Volg ons op ~s").
 
 :- setting(
      html:facebook_app_id,
-     term,
+     any,
      _,
      "Facebook application identifier."
    ).
 :- setting(
      html:facebook_profile_name,
-     term,
+     any,
      _,
      "Facebook profile name."
    ).
 :- setting(
      html:google_analytics_id,
-     term,
+     any,
      _,
      "Google Analytics ID."
    ).

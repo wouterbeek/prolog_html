@@ -13,6 +13,7 @@
     external_link_icon//1, % +Uri
     favicon//1,            % +Spec
     flag_icon//1,          % +LTag
+    footer_panel//3,       % +Spec, :Top_0, :Bottom_0
     form//2,               % +Spec, :Content_0
     form//3,               % +Spec, +Attrs, :Content_0
     google_analytics//0,
@@ -42,6 +43,7 @@
     internal_link//3,      % +Spec, +Attrs, :Content_0
     language_menu//1,      % +LTags
     mail_icon//1,          % +Uri
+    menu//0,
     meta_authors//0,
     meta_description//1,   % +Desc
     navbar//3,             % :Brand_0, :Menu_0, :Right_0
@@ -68,6 +70,7 @@
     table_data_row//2,     % :Cell_1, +Row
     table_header_row//1,   % +Row
     table_header_row//2,   % :Cell_1, +Row
+    title//1,              % +Strings
     tooltip//2,            % +String, :Content_0
     vote_down//1,          % +Vote:integer
     vote_up//1             % +Vote:integer
@@ -100,12 +103,14 @@ html({|html||...|}).
 :- use_module(library(http/jquery)).
 :- use_module(library(lists)).
 :- use_module(library(nlp/nlp_lang)).
+:- use_module(library(pairs)).
 :- use_module(library(settings)).
 :- use_module(library(string_ext)).
 :- use_module(library(uri/uri_ext)).
 
-% jQuery
-:- set_setting(jquery:version, '3.2.1.min').
+:- dynamic
+    html:menu_item/3,
+    html:menu_item/4.
 
 :- html_meta
    data_link(+, html, ?, ?),
@@ -114,6 +119,7 @@ html({|html||...|}).
    dropdown_menu(+, html, :, +, ?, ?),
    external_link(+, html, ?, ?),
    external_link(+, +, html, ?, ?),
+   footer_panel(+, html, html, ?, ?),
    form(+, html, ?, ?),
    form(+, +, html, ?, ?),
    html_call(html, ?, ?),
@@ -236,10 +242,28 @@ html({|html||...|}).
     table_header_cell(3, +, ?, ?),
     table_header_row(3, +, ?, ?).
 
+%! html:menu_item(?Major, ?Name, ?Label) is nondet.
+%! html:menu_item(?Major, ?Spec, ?Label) is nondet.
+%
+% Adds a top-level menu item to the menu.  The menu item has a rank
+% Major, an internal Name and a user-visible label Label.
+
+%! html:menu_item(?Name, ?Minor, ?Spec, ?Label) is nondet.
+%
+% Adds a menu-item under a top-level menu item with the given internal
+% Name.  Minor denotes the rank within the top-level menu item.  Spec
+% denotes the HTTP handler that fires when this menu item is clicked.
+% Label is a user-visible label.
+
 :- multifile
     html:author/1,
+    html:menu_item/3,
+    html:menu_item/4,
     html:html_hook//1,
     html:html_hook//2.
+
+% jQuery
+:- set_setting(jquery:version, '3.2.1.min').
 
 
 
@@ -362,6 +386,22 @@ flag_icon_img(_) --> [].
 
 
 
+%! footer_panel(+Spec, :Top_0, :Bottom_0)// is det.
+
+footer_panel(Spec, Top_0, Bottom_0) -->
+  html([
+    div(style='display: table;', [
+      div([class='footer-logo',style='display: table-cell;'],
+        a(href='/', \image(Spec, [height=60,style='max-height: 60px;']))
+      ),
+      div(class='brand-txt', a(href='/', Top_0))
+    ]),
+    Bottom_0
+  ]).
+
+
+
+
 %! form(+Spec, :Content_0)// is det.
 %! form(+Spec, +Attrs, :Content_0)// is det.
 
@@ -446,12 +486,16 @@ html_date_time(Something) -->
 
 html_date_time(Something, Opts) -->
   {
-    something_to_date_time(Something, DT),
-    html_date_time_machine(DT, MachineString),
+    something_to_date_time(Something, DateTime),
+    html_date_time_machine(DateTime, MachineString),
     dict_get(masks, Opts, [], Masks),
-    date_time_masks(Masks, DT, MaskedDT)
+    date_time_masks(Masks, DateTime, MaskedDateTime)
   },
-  html(time(datetime=MachineString, \html_date_time_human(MaskedDT, Opts))).
+  html(
+    time(datetime=MachineString,
+      \html_date_time_human(MaskedDateTime, Opts)
+    )
+  ).
 
 
 
@@ -783,6 +827,64 @@ mail_icon(Uri) -->
 
 
 
+%! menu// is det.
+%
+% This needs to be plugged into navbar//3 for argument Menu_0.
+
+menu -->
+  {
+    http_current_request(Request),
+    memberchk(request_uri(RequestUri), Request),
+    major_menus(MajorMenus)
+  },
+  html_maplist(major_menu(RequestUri), MajorMenus).
+
+
+% Flat menu item.
+major_menu(RequestUri, menu_item(Handle,Label)-[]) --> !,
+  {
+    http_link_to_id(Handle, Uri),
+    (atom_postfix(RequestUri, Uri) -> Classes = [active] ; Classes = [])
+  },
+  html(
+    li(class='nav-item',
+      a([class=['nav-link',Handle|Classes],href=Uri], Label)
+    )
+  ).
+% Nested menu items.
+major_menu(_, MajorItem-MinorItems) -->
+  dropdown_menu(menu_item(MajorItem), menu_item, MinorItems).
+
+
+major_menus(MajorTrees) :-
+  findall(
+    Major-menu_item(Handle,Label),
+    (html:menu_item(Major, Handle, Label), Handle \== user),
+    Pairs
+  ),
+  sort(@=<, 1, Pairs, SortedPairs),
+  pairs_values(SortedPairs, MajorNodes),
+  maplist(major_node_to_menu, MajorNodes, MajorTrees).
+
+
+major_node_to_menu(
+  menu_item(Handle1,Label1),
+  menu_item(Handle1,Label1)-MinorNodes
+) :-
+  findall(
+    Minor-menu_item(Handle2,Label2),
+    html:menu_item(Handle1, Minor, Handle2, Label2),
+    Pairs
+  ),
+  sort(@=<, 1, Pairs, SortedPairs),
+  pairs_values(SortedPairs, MinorNodes).
+
+
+menu_item(menu_item(Handle,Label)) -->
+  internal_link(link_to_id(Handle), Label).
+
+
+
 %! meta_authors// is det.
 
 meta_authors -->
@@ -869,6 +971,65 @@ open_graph(Key0, Val) -->
 
 pipe -->
   html([" ",span(class=pipe, "|")," "]).
+
+
+
+%! row_1(:ContentA_0)// is det.
+%! row_1(+WidthsA, :ContentA_0)// is det.
+%! row_1(+Attrs, +WidthsA, :ContentA_0)// is det.
+
+row_1(ContentA_0) -->
+  row_1(12, ContentA_0).
+
+
+row_1(WidthsA, ContentA_0) -->
+  row_1([], WidthsA, ContentA_0).
+
+
+row_1(Attrs1, WidthsA, ContentA_0) -->
+  {
+    merge_attributes(Attrs1, [class='container-fluid'], Attrs2),
+    widths0(WidthsA, ClassesA)
+  },
+  html(
+    div(Attrs2,
+      div(class=row,
+        div(class=[col|ClassesA], ContentA_0)
+      )
+    )
+  ).
+
+
+
+%! row_3(:ContentA_0, :ContentB_0, :ContentC_0)// is det.
+%! row_3(+WidthsA, :ContentA_0, +WidthsB, :ContentB_0,
+%!       +WidthsC, :ContentC_0)// is det.
+%! row_3(+Attrs, +WidthsA, :ContentA_0, +WidthsB, :ContentB_0,
+%!       +WidthsC, :ContentC_0)// is det.
+
+row_3(ContentA_0, ContentB_0, ContentC_0) -->
+  row_3(4, ContentA_0, 4, ContentB_0, 4, ContentC_0).
+
+
+row_3(WidthsA, ContentA_0, WidthsB, ContentB_0, WidthsC, ContentC_0) -->
+  row_3([], WidthsA, ContentA_0, WidthsB, ContentB_0, WidthsC, ContentC_0).
+
+
+row_3(Attrs1, WidthsA, ContentA_0, WidthsB, ContentB_0,
+      WidthsC, ContentC_0) -->
+  {
+    merge_attrs(Attrs1, [class=['container-fluid']], Attrs2),
+    maplist(widths, [WidthsA,WidthsB,WidthsC], [ClassesA,ClassesB,ClassesC])
+  },
+  html(
+    div(Attrs2,
+      div(class=row, [
+        div(class=[col|ClassesA], ContentA_0),
+        div(class=[col,middle|ClassesB], ContentB_0),
+        div(class=[col|ClassesC], ContentC_0)
+      ])
+    )
+  ).
 
 
 
@@ -978,6 +1139,14 @@ table_header_row(Cell_1, Row) -->
 
 
 
+%! title(+Strs)// is det.
+
+title(Strs) -->
+  {atomics_to_string(Strs, " ⎯ ", Str)},
+  html(title(Str)).
+
+
+
 %! tooltip(+String, :Content_0)// is det.
 
 tooltip(String, Content_0) -->
@@ -1046,65 +1215,6 @@ attr_multi_value(class).
 ensure_list(L, L) :-
   is_list(L), !.
 ensure_list(Elem, [Elem]).
-
-
-
-%! row_1(:ContentA_0)// is det.
-%! row_1(+WidthsA, :ContentA_0)// is det.
-%! row_1(+Attrs, +WidthsA, :ContentA_0)// is det.
-
-row_1(ContentA_0) -->
-  row_1(12, ContentA_0).
-
-
-row_1(WidthsA, ContentA_0) -->
-  row_1([], WidthsA, ContentA_0).
-
-
-row_1(Attrs1, WidthsA, ContentA_0) -->
-  {
-    merge_attributes(Attrs1, [class='container-fluid'], Attrs2),
-    widths0(WidthsA, ClassesA)
-  },
-  html(
-    div(Attrs2,
-      div(class=row,
-        div(class=[col|ClassesA], ContentA_0)
-      )
-    )
-  ).
-
-
-
-%! row_3(:ContentA_0, :ContentB_0, :ContentC_0)// is det.
-%! row_3(+WidthsA, :ContentA_0, +WidthsB, :ContentB_0,
-%!       +WidthsC, :ContentC_0)// is det.
-%! row_3(+Attrs, +WidthsA, :ContentA_0, +WidthsB, :ContentB_0,
-%!       +WidthsC, :ContentC_0)// is det.
-
-row_3(ContentA_0, ContentB_0, ContentC_0) -->
-  row_3(4, ContentA_0, 4, ContentB_0, 4, ContentC_0).
-
-
-row_3(WidthsA, ContentA_0, WidthsB, ContentB_0, WidthsC, ContentC_0) -->
-  row_3([], WidthsA, ContentA_0, WidthsB, ContentB_0, WidthsC, ContentC_0).
-
-
-row_3(Attrs1, WidthsA, ContentA_0, WidthsB, ContentB_0,
-      WidthsC, ContentC_0) -->
-  {
-    merge_attrs(Attrs1, [class=['container-fluid']], Attrs2),
-    maplist(widths, [WidthsA,WidthsB,WidthsC], [ClassesA,ClassesB,ClassesC])
-  },
-  html(
-    div(Attrs2,
-      div(class=row, [
-        div(class=[col|ClassesA], ContentA_0),
-        div(class=[col,middle|ClassesB], ContentB_0),
-        div(class=[col|ClassesC], ContentC_0)
-      ])
-    )
-  ).
 
 
 
