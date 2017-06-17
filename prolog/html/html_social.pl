@@ -41,12 +41,6 @@ nlp:nlp_string0(nl, follow_us_on_x, "Volg ons op ~s").
      "Facebook profile name."
    ).
 :- setting(
-     html:google_analytics_id,
-     any,
-     _,
-     "Google Analytics ID."
-   ).
-:- setting(
      html:twitter_profile_name,
      any,
      _,

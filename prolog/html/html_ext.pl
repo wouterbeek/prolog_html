@@ -1,8 +1,9 @@
 :- module(
   html_ext,
   [
-    data_link//2,          % +Resource, :Html_0
-    data_link//3,          % +Resource, +Attrs, :Html_0
+    button//2,             % +Attrs, :Content_0
+    data_link//2,          % +Resource, :Content_0
+    data_link//3,          % +Resource, +Attrs, :Content_0
     deck//2,               % :Card_1, +Items
     deck//3,               % +Attrs, :Card_1, +Items
     dropdown_menu//3,      % :Top_0, :Item_1, +Items
@@ -11,7 +12,7 @@
     external_link//2,      % +Uri, :Content_0
     external_link//3,      % +Uri, +Attrs, :Content_0
     external_link_icon//1, % +Uri
-    favicon//1,            % +Spec
+    favicon//0,
     flag_icon//1,          % +LTag
     footer_panel//3,       % +Spec, :Top_0, :Bottom_0
     form//2,               % +Spec, :Content_0
@@ -30,11 +31,12 @@
     html_seplist//3,       % :Html_1, :Sep_0, +Args
     html_set//1,           % +Args
     html_set//2,           % :Html_1, +Args
+    html_site_init/1,      % +Dict
     html_space//0,
     html_thousands//1,     % +Integer
-    icon//1,                 % +Name
-    icon_button//1,          % +Name
-    icon_button//2,          % +Name, +Func
+    icon//1,               % +Name
+    icon_button//1,        % +Name
+    icon_button//2,        % +Name, +Func
     ignore//1,             % :Html_0
     image//1,              % +Spec
     image//2,              % +Spec, +Attrs
@@ -113,6 +115,7 @@ html({|html||...|}).
     html:menu_item/4.
 
 :- html_meta
+   button(+, html, ?, ?),
    data_link(+, html, ?, ?),
    data_link(+, +, html, ?, ?),
    dropdown_menu(html, :, +, ?, ?),
@@ -265,20 +268,41 @@ html({|html||...|}).
 % jQuery
 :- set_setting(jquery:version, '3.2.1.min').
 
+:- setting(
+     html:favicon,
+     atom,
+     logo,
+     "The base name of the website icon."
+   ).
+:- setting(
+     html:google_analytics_id,
+     any,
+     _,
+     "Google Analytics ID."
+   ).
 
 
 
 
-%! data_link(+Resource, :Html_0)// is det.
-%! data_link(+Resource, +Attrs, :Html_0)// is det.
 
-data_link(Resource, Html_0) -->
-  data_link(Resource, [], Html_0).
+%! button(+Attrs, :Content_0)// is det.
+
+button(Attrs1, Content_0) -->
+  {merge_attributes([class=[btn,'btn-default']], Attrs1, Attrs2)},
+  html(button(Attrs2, Content_0)).
 
 
-data_link(Resource, Attrs, Html_0) -->
+
+%! data_link(+Resource, :Content_0)// is det.
+%! data_link(+Resource, +Attrs, :Content_0)// is det.
+
+data_link(Resource, Content_0) -->
+  data_link(Resource, [], Content_0).
+
+
+data_link(Resource, Attrs, Content_0) -->
   {uri_resource(Uri, Resource)},
-  internal_link(Uri, Attrs, Html_0).
+  internal_link(Uri, Attrs, Content_0).
 
 
 
@@ -355,13 +379,17 @@ external_link_icon(Uri) -->
 
 
 
-%! favicon(+Spec)// is det.
+%! favicon// is det.
 %
 % Generates an HTML link to a favicon.  This icon will show up in a
 % Web browser's tab.
 
-favicon(Spec) -->
-  {uri_specification(Spec, Uri)},
+favicon -->
+  {
+    setting(html:favicon, Base),
+    file_name_extension(Base, svg, Local),
+    uri_specification(img(Local), Uri)
+  },
   html(link([href=Uri,icon=Uri,rel=icon,type='image/x-icon'], [])).
 
 
@@ -413,9 +441,9 @@ form(Spec, Attrs1, Content_0) -->
   {
     uri_specification(Spec, Uri),
     % By default use the HTTP GET method.
-    merge_attrs([method=get], Attrs1, Attrs2),
+    merge_attributes([method=get], Attrs1, Attrs2),
     % Do not allow the `action' attribute to be overruled.
-    merge_attrs(Attrs2, [action=Uri], Attrs3)
+    merge_attributes(Attrs2, [action=Uri], Attrs3)
   },
   html(form(Attrs3, Content_0)).
 
@@ -660,6 +688,32 @@ html_set(Html_1, Args) -->
 
 
 
+%! html_site_init(+Dict) is det.
+
+html_site_init(Dict1) :-
+  (   dict_get(site, Dict1, Dict2)
+  ->  (   dict_get(favicon, Dict2, Base)
+      ->  set_setting(html:favicon, Base)
+      ;   true
+      ),
+      dict_get(authors, Dict2, [], Authors),
+      maplist(init_author, Authors)
+  ;   true
+  ),
+  (   dict_get(monitor, Dict1, Dict3)
+  ->  (   dict_get('google-analytics', Dict3, Dict4)
+      ->  set_setting(html:google_analytics_id, Dict4.'profile-id')
+      ;   true
+      )
+  ;   true
+  ).
+
+init_author(Author0) :-
+  atom_string(Author0, Author),
+  assert(html:author(Author)).
+
+
+
 %! html_space// is det.
 
 html_space -->
@@ -862,7 +916,7 @@ major_menus(MajorTrees) :-
     (html:menu_item(Major, Handle, Label), Handle \== user),
     Pairs
   ),
-  sort(@=<, 1, Pairs, SortedPairs),
+  sort(1, @=<, Pairs, SortedPairs),
   pairs_values(SortedPairs, MajorNodes),
   maplist(major_node_to_menu, MajorNodes, MajorTrees).
 
@@ -876,7 +930,7 @@ major_node_to_menu(
     html:menu_item(Handle1, Minor, Handle2, Label2),
     Pairs
   ),
-  sort(@=<, 1, Pairs, SortedPairs),
+  sort(1, @=<, Pairs, SortedPairs),
   pairs_values(SortedPairs, MinorNodes).
 
 
@@ -934,8 +988,7 @@ hamburger -->
       'aria-label'="Toggle navigation",
       class=[collapsed,'navbar-toggler','navbar-toggler-right'],
       'data-target'='target#',
-      'data-toggle'=collapse,
-      type=button
+      'data-toggle'=collapse
     ], span(class='navbar-toggler-icon', []))
   ).
 
@@ -1018,8 +1071,8 @@ row_3(WidthsA, ContentA_0, WidthsB, ContentB_0, WidthsC, ContentC_0) -->
 row_3(Attrs1, WidthsA, ContentA_0, WidthsB, ContentB_0,
       WidthsC, ContentC_0) -->
   {
-    merge_attrs(Attrs1, [class=['container-fluid']], Attrs2),
-    maplist(widths, [WidthsA,WidthsB,WidthsC], [ClassesA,ClassesB,ClassesC])
+    merge_attributes(Attrs1, [class=['container-fluid']], Attrs2),
+    maplist(widths0, [WidthsA,WidthsB,WidthsC], [ClassesA,ClassesB,ClassesC])
   },
   html(
     div(Attrs2,
