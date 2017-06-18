@@ -2,21 +2,14 @@
   html_ext,
   [
     button//2,             % +Attrs, :Content_0
-    data_link//2,          % +Resource, :Content_0
-    data_link//3,          % +Resource, +Attrs, :Content_0
     deck//2,               % :Card_1, +Items
     deck//3,               % +Attrs, :Card_1, +Items
     dropdown_menu//3,      % :Top_0, :Item_1, +Items
     dropdown_menu//4,      % +Attrs, :Top_0, :Item_1, +Items
     external_link//1,      % +Uri
-    external_link//2,      % +Uri, :Content_0
-    external_link//3,      % +Uri, +Attrs, :Content_0
-    external_link_icon//1, % +Uri
     favicon//0,
     flag_icon//1,          % +LTag
-    footer_panel//3,       % +Spec, :Top_0, :Bottom_0
-    form//2,               % +Spec, :Content_0
-    form//3,               % +Spec, +Attrs, :Content_0
+    footer_panel//3,       % +Image, :Top_0, :Bottom_0
     google_analytics//0,
     html_call//1,          % :Html_0
     html_call//2,          % :Html_1, +Arg1
@@ -38,11 +31,6 @@
     icon_button//1,        % +Name
     icon_button//2,        % +Name, +Func
     ignore//1,             % :Html_0
-    image//1,              % +Spec
-    image//2,              % +Spec, +Attrs
-    internal_link//1,      % +Spec
-    internal_link//2,      % +Spec, :Content_0
-    internal_link//3,      % +Spec, +Attrs, :Content_0
     language_menu//1,      % +LTags
     mail_icon//1,          % +Uri
     mail_link_and_icon//1, % +Uri
@@ -117,15 +105,9 @@ html({|html||...|}).
 
 :- html_meta
    button(+, html, ?, ?),
-   data_link(+, html, ?, ?),
-   data_link(+, +, html, ?, ?),
    dropdown_menu(html, :, +, ?, ?),
    dropdown_menu(+, html, :, +, ?, ?),
-   external_link(+, html, ?, ?),
-   external_link(+, +, html, ?, ?),
    footer_panel(+, html, html, ?, ?),
-   form(+, html, ?, ?),
-   form(+, +, html, ?, ?),
    html_call(html, ?, ?),
    html_page(html, html),
    html_page(+, html, html),
@@ -133,8 +115,6 @@ html({|html||...|}).
    html_seplist(html, html, ?, ?),
    html_seplist(3, html, +, ?, ?),
    ignore(html, ?, ?),
-   internal_link(+, html, ?, ?),
-   internal_link(+, +, html, ?, ?),
    navbar(html, html, html, ?, ?),
    navbar_dropdown_menu(+, +, 3, +, ?, ?),
    row_1(html, ?, ?),
@@ -300,17 +280,14 @@ html({|html||...|}).
     table_header_row(3, +, ?, ?).
 
 %! html:menu_item(?Major, ?Name, ?Label) is nondet.
-%! html:menu_item(?Major, ?Spec, ?Label) is nondet.
 %
 % Adds a top-level menu item to the menu.  The menu item has a rank
 % Major, an internal Name and a user-visible label Label.
 
-%! html:menu_item(?Name, ?Minor, ?Spec, ?Label) is nondet.
+%! html:menu_item(?Name, ?Minor, ?Uri, ?Label) is nondet.
 %
 % Adds a menu-item under a top-level menu item with the given internal
-% Name.  Minor denotes the rank within the top-level menu item.  Spec
-% denotes the HTTP handler that fires when this menu item is clicked.
-% Label is a user-visible label.
+% Name.  Minor denotes the rank within the top-level menu item.
 
 :- multifile
     html:author/1,
@@ -344,19 +321,6 @@ html({|html||...|}).
 button(Attrs1, Content_0) -->
   {merge_attributes([class=[btn,'btn-default']], Attrs1, Attrs2)},
   html(button(Attrs2, Content_0)).
-
-
-
-%! data_link(+Resource, :Content_0)// is det.
-%! data_link(+Resource, +Attrs, :Content_0)// is det.
-
-data_link(Resource, Content_0) -->
-  data_link(Resource, [], Content_0).
-
-
-data_link(Resource, Attrs, Content_0) -->
-  {uri_resource(Uri, Resource)},
-  internal_link(Uri, Attrs, Content_0).
 
 
 
@@ -404,31 +368,8 @@ html_list_item(Item_1, X) -->
 
 
 %! external_link(+Uri)// is det.
-%! external_link(+Uri, :Content_0)// is det.
-%! external_link(+Uri, +Attrs, :Content_0)// is det.
-%
-% Generates an HTML link to an external resource.
-%
-% When Icon is `true` the fact that the link points to an external
-% resource is indicated by a link icon (default is `false`).
 
 external_link(Uri) -->
-  external_link(Uri, Uri).
-
-
-external_link(Uri, Content_0) -->
-  external_link(Uri, [], Content_0).
-
-
-external_link(Uri, Attrs1, Content_0) -->
-  {merge_attributes(Attrs1, [href=Uri,target='_blank'], Attrs2)},
-  html(a(Attrs2, Content_0)).
-
-
-
-%! external_link_icon(+Uri)// is det.
-
-external_link_icon(Uri) -->
   html(a([href=Uri,target='_blank'], \icon(external_link))).
 
 
@@ -442,9 +383,9 @@ favicon -->
   {
     setting(html:favicon, Base),
     file_name_extension(Base, svg, Local),
-    uri_specification(img(Local), Uri)
+    http_absolute_location(img(Local), Image)
   },
-  html(link([href=Uri,icon=Uri,rel=icon,type='image/x-icon'], [])).
+  html(link([href=Image,icon=Image,rel=icon,type='image/x-icon'], [])).
 
 
 
@@ -468,38 +409,18 @@ flag_icon_img(_) --> [].
 
 
 
-%! footer_panel(+Spec, :Top_0, :Bottom_0)// is det.
+%! footer_panel(+Image, :Top_0, :Bottom_0)// is det.
 
-footer_panel(Spec, Top_0, Bottom_0) -->
+footer_panel(Image, Top_0, Bottom_0) -->
   html([
     div(style='display: table;', [
       div([class='footer-logo',style='display: table-cell;'],
-        a(href='/', \image(Spec, [height=60,style='max-height: 60px;']))
+        a(href='/', img([height=60,src=Image,style='max-height: 60px;'], []))
       ),
       div(class='brand-txt', a(href='/', Top_0))
     ]),
     Bottom_0
   ]).
-
-
-
-
-%! form(+Spec, :Content_0)// is det.
-%! form(+Spec, +Attrs, :Content_0)// is det.
-
-form(Spec, Content_0) -->
-  form(Spec, [], Content_0).
-
-
-form(Spec, Attrs1, Content_0) -->
-  {
-    uri_specification(Spec, Uri),
-    % By default use the HTTP GET method.
-    merge_attributes([method=get], Attrs1, Attrs2),
-    % Do not allow the `action' attribute to be overruled.
-    merge_attributes(Attrs2, [action=Uri], Attrs3)
-  },
-  html(form(Attrs3, Content_0)).
 
 
 
@@ -615,7 +536,7 @@ html:html_hook(empty) -->
   html([]).
 % IRI
 html:html_hook(iri(Iri)) -->
-  external_link(Iri).
+  html(a([href=Iri,target='_blank'])).
 % set
 html:html_hook(set(Set)) -->
   html_set(Set).
@@ -861,44 +782,6 @@ ignore(_) --> [].
 
 
 
-%! image(+Spec)// is det.
-%! image(+Spec, +Attrs)// is det.
-
-image(Spec) -->
-  image(Spec, []).
-
-
-image(Spec, Attrs1) -->
-  {
-    uri_specification(Spec, Uri),
-    merge_attributes(Attrs1, [src=Uri], Attrs2)
-  },
-  html(img(Attrs2, [])).
-
-
-
-%! internal_link(+Spec)// is det.
-%! internal_link(+Spec, :Content_0)// is det.
-%! internal_link(+Spec, +Attrs, :Content_0)// is det.
-
-internal_link(Spec) -->
-  internal_link(Spec, _).
-
-
-internal_link(Spec, Content_0) -->
-  internal_link(Spec, [], Content_0).
-
-
-internal_link(Spec, Attrs1, Content0_0) -->
-  {
-    uri_specification(Spec, Uri),
-    merge_attributes(Attrs1, [href=Uri], Attrs2),
-    (var_goal(Content0_0) -> Content_0 = Uri ; Content_0 = Content0_0)
-  },
-  html(a(Attrs2, Content_0)).
-
-
-
 %! language_menu(+LTags)// is det.
 
 language_menu(LTags) -->
@@ -931,7 +814,7 @@ language_menu_item(LTag0, LTag) -->
 %! mail_icon(+Uri)// is det.
 
 mail_icon(Uri) -->
-  external_link(Uri, [property='foaf:mbox'], [" ",\icon(mail)]).
+  html(a([href=Uri,property='foaf:mbox',target='_blank'], [" ",\icon(mail)])).
 
 
 
@@ -939,10 +822,12 @@ mail_icon(Uri) -->
 
 mail_link_and_icon(Uri) -->
   {uri_components(Uri, uri_components(mailto,_,Label,_,_))},
-  external_link(
-    Uri,
-    [class=nowrap,property='foaf:mbox'],
-    [\icon(mail)," ",code(Label)]
+  html(
+    a([class=nowrap,href=Uri,property='foaf:mbox'], [
+      \icon(mail),
+      " ",
+      code(Label)
+    ])
   ).
 
 
@@ -1000,8 +885,9 @@ major_node_to_menu(
   pairs_values(SortedPairs, MinorNodes).
 
 
-menu_item(menu_item(Handle,Label)) -->
-  internal_link(link_to_id(Handle), Label).
+menu_item(menu_item(HandleId,Label)) -->
+  {http_link_to_id(HandleId, [], Uri)},
+  html(a(href=Uri, Label)).
 
 
 
@@ -1334,32 +1220,6 @@ attr_multi_value(class).
 ensure_list(L, L) :-
   is_list(L), !.
 ensure_list(Elem, [Elem]).
-
-
-
-%! uri_specification(+Spec, -Uri) is det.
-%
-% Allows a URI to be specified in the following ways:
-%
-%   - link_to_id(<HANDLE-ID>)
-%
-%   - link_to_id(<HANDLE-ID>,<QUERY>)
-%
-%   - Compound terms processed by http_absolute_location/2
-%
-%   - atoms
-%
-% Whenever possible, the URI is abbreviated in case its schema, host
-% and port are the local schema, host and port.
-
-uri_specification(link_to_id(HandleId), Uri) :- !,
-  uri_specification(link_to_id(HandleId,[]), Uri).
-uri_specification(link_to_id(HandleId,QueryComps), Uri2) :- !,
-  http_link_to_id(HandleId, QueryComps, Uri1),
-  uri_remove_host(Uri1, Uri2).
-uri_specification(Spec, Uri2) :-
-  http_absolute_location(Spec, Uri1),
-  uri_remove_host(Uri1, Uri2).
 
 
 

@@ -2,9 +2,9 @@
   html_social,
   [
     facebook_follow_img//0,
-    facebook_share//2,      % +Uri, +Title
+    facebook_share//2,      % +Resource, +Title
     twitter_follow_img//0,
-    twitter_share//2        % +Uri, +Title
+    twitter_share//2        % +Resource, +Title
   ]
 ).
 
@@ -30,6 +30,8 @@ nlp:nlp_string0(en, follow_us_on_x, "Follow us on ~s").
 nlp:nlp_string0(nl, follow_us_on_x, "Volg ons op ~s").
 nlp:nlp_string0(en, like_us_on_x, "Like us on ~s").
 nlp:nlp_string0(nl, like_us_on_x, "Like ons op ~s").
+nlp:nlp_string0(en, share_x_on_y, "Share “~s” on ~s.").
+nlp:nlp_string0(nl, share_x_on_y, "Deel “~s” op ~s.").
 
 :- setting(
      html:facebook_app_id,
@@ -65,14 +67,14 @@ facebook_follow_img --> [].
 
 
 
-%! facebook_share(+Uri, +Title)// is det.
+%! facebook_share(+Resource, +Title)// is det.
 
-facebook_share(Uri0, Title) -->
+facebook_share(Resource, Title) -->
   {
     nlp_string(share_x_on_y, [Title,"Facebook"], String),
     uri_comps(
       Uri,
-      uri(http,'www.facebook.com',['share.php'],[title=Title,u=Uri0],_)
+      uri(http,'www.facebook.com',['share.php'],[title(Title),u(Resource)],_)
     )
   },
   tooltip(String, a([href=Uri,target='_blank'], \facebook_img0)).
@@ -92,12 +94,15 @@ twitter_follow_img --> [].
 
 
 
-%! twitter_share(+Uri, +Title)// is det.
+%! twitter_share(+Resource, +Title)// is det.
 
-twitter_share(Uri0, Title) -->
+twitter_share(Resource, Title) -->
   {
     nlp_string(share_x_on_y, [Title,"Twitter"], String),
-    uri_comps(Uri, uri(https,'twitter.com',[share],[text(Title),url(Uri0)],_))
+    uri_comps(
+      Uri,
+      uri(https,'twitter.com',[share],[text(Title),url(Resource)],_)
+    )
   },
   tooltip(String, a(href=Uri, \twitter_img0)).
 
@@ -110,8 +115,8 @@ twitter_share(Uri0, Title) -->
 %! facebook_img0// is det.
 
 facebook_img0 -->
-  {http_absolute_location(img('facebook.png'), Location)},
-  html(img([alt="Facebook",src=Location], [])).
+  {http_absolute_location(img('facebook.png'), Uri)},
+  html(img([alt="Facebook",src=Uri], [])).
 
 
 
@@ -141,7 +146,8 @@ twitter_follow0(ProfileName, Content_0) -->
 %! twitter_img0// is det.
 
 twitter_img0 -->
-  image(img('twitter.png'), [alt="Twitter"]).
+  {http_absolute_location(img('twitter.png'), Image)},
+  html(img([alt="Twitter",src=Image], [])).
 
 
 
