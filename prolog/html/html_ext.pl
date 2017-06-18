@@ -32,6 +32,7 @@
     icon_button//2,        % +Name, +Func
     ignore//1,             % :Html_0
     language_menu//1,      % +LTags
+    logo/1,                % -Image
     mail_icon//1,          % +Uri
     mail_link_and_icon//1, % +Uri
     menu//0,
@@ -300,16 +301,16 @@ html({|html||...|}).
 :- set_setting(jquery:version, '3.2.1.min').
 
 :- setting(
-     html:favicon,
-     atom,
-     logo,
-     "The base name of the website icon."
-   ).
-:- setting(
      html:google_analytics_id,
      any,
      _,
      "Google Analytics ID."
+   ).
+:- setting(
+     html:logo,
+     atom,
+     logo,
+     "The base name of the website logo."
    ).
 
 
@@ -380,11 +381,7 @@ external_link(Uri) -->
 % Web browser's tab.
 
 favicon -->
-  {
-    setting(html:favicon, Base),
-    file_name_extension(Base, svg, Local),
-    http_absolute_location(img(Local), Image)
-  },
+  {logo(Image)},
   html(link([href=Image,icon=Image,rel=icon,type='image/x-icon'], [])).
 
 
@@ -667,10 +664,7 @@ html_set(Html_1, Args) -->
 
 html_site_init(Dict1) :-
   (   dict_get(site, Dict1, Dict2)
-  ->  (   dict_get(favicon, Dict2, Base)
-      ->  set_setting(html:favicon, Base)
-      ;   true
-      ),
+  ->  (dict_get(logo, Dict2, Base) -> set_setting(html:logo, Base) ; true),
       dict_get(authors, Dict2, [], Authors),
       maplist(init_author, Authors)
   ;   true
@@ -808,6 +802,15 @@ language_menu(_) --> [].
 language_menu_item(LTag0, LTag) -->
   {(LTag0 == LTag -> T = [selected=selected] ; T = [])},
   html(option([value=LTag|T], \html_nlp_string(LTag))).
+
+
+
+%! logo(-Image) is det.
+
+logo(Image) :-
+  setting(html:logo, Base),
+  file_name_extension(Base, svg, Local),
+  http_absolute_location(img(Local), Image).
 
 
 
