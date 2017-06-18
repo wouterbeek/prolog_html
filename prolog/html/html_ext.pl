@@ -45,6 +45,7 @@
     internal_link//3,      % +Spec, +Attrs, :Content_0
     language_menu//1,      % +LTags
     mail_icon//1,          % +Uri
+    mail_link_and_icon//1, % +Uri
     menu//0,
     meta_authors//0,
     meta_description//1,   % +Desc
@@ -931,6 +932,18 @@ language_menu_item(LTag0, LTag) -->
 
 mail_icon(Uri) -->
   external_link(Uri, [property='foaf:mbox'], [" ",\icon(mail)]).
+
+
+
+%! mail_link_and_icon(+Uri)// is det.
+
+mail_link_and_icon(Uri) -->
+  {uri_components(Uri, uri_components(mailto,_,Label,_,_))},
+  external_link(
+    Uri,
+    [class=nowrap,property='foaf:mbox'],
+    [\icon(mail)," ",code(Label)]
+  ).
 
 
 
