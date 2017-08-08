@@ -1,8 +1,8 @@
 :- module(
   html_date_time_human,
   [
-    html_date_time_human//2, % +DT, +Opts
-    html_today_human//1      % +Opts
+    html_date_time_human//2, % +Datetime, +Options
+    html_today_human//1      % +Options
   ]
 ).
 
@@ -11,7 +11,7 @@
 DCG rules for parsing/generating human-readable HTML5 dates.
 
 @author Wouter Beek
-@version 2017/05
+@version 2017/05, 2017/08
 */
 
 :- use_module(library(apply)).
@@ -25,79 +25,87 @@ DCG rules for parsing/generating human-readable HTML5 dates.
 
 
 
-%! html_date_time_human(+DT, +Opts)// is det.
+%! html_date_time_human(+Datetime:dt, +Options:list(compound))// is det.
 
-html_date_time_human(date_time(Y,Mo,Da,H,Mi,S,Off), Opts) -->
+html_date_time_human(dt(Y,Mo,Da,H,Mi,S,Off), Options) -->
   (   {ground(date(Y,Mo,Da,H,Mi,S,Off))}
-  ->  global_date_and_time(Y, Mo, Da, H, Mi, S, Off, Opts)
+  ->  global_date_and_time(Y, Mo, Da, H, Mi, S, Off, Options)
   ;   {ground(date(Y,Mo,Da,H,Mi,S))}
-  ->  floating_date_and_time(Y, Mo, Da, H, Mi, S, Opts)
+  ->  floating_date_and_time(Y, Mo, Da, H, Mi, S, Options)
   ;   {ground(date(Y,Mo,Da))}
-  ->  date(Y, Mo, Da, Opts)
+  ->  date(Y, Mo, Da, Options)
   ;   {ground(date(H,Mi,S))}
-  ->  time(H, Mi, S, Opts)
+  ->  time(H, Mi, S, Options)
   ;   {ground(date(Mo,Da))}
-  ->  yearless_date(_, Mo, Da, Opts)
+  ->  yearless_date(Mo, Da, Options)
   ;   {ground(date(Y,Mo))}
-  ->  month(Y, Mo, Opts)
+  ->  month(Y, Mo, Options)
   ;   {ground(date(Y))}
-  ->  year(Y, Opts)
+  ->  year(Y, Options)
   ;   {ground(date(Off))}
   ->  timezone_offset(Off)
   ).
 
 
 
-%! html_today_human(+Opts)// is det.
+%! html_today_human(+Options:list(compound))// is det.
 
-html_today_human(Opts) -->
-  {get_date_time(DT)},
-  html_date_time_human(DT, Opts).
-
-
-
-%! date(+Y, +Mo, +Da, +Opts)// is det.
-
-date(Y, Mo, Da, Opts) -->
-  html([\month_day(Da, Opts)," ",\month(Y, Mo, Opts)]).
+html_today_human(Options) -->
+  {now(DT)},
+  html_date_time_human(DT, Options).
 
 
 
-%! floating_date_and_time(+Y, +Mo, +Da, +H, +Mi, +S, +Opts)// is det.
+%! date(+Year:integer, +Month:between(1,12), +Day:between(1,31),
+%!      +Options:list(compound))// is det.
 
-floating_date_and_time(Y, Mo, Da, H, Mi, S, Opts) -->
-  html([\date(Y, Mo, Da, Opts)," ",\time(H, Mi, S, Opts)]).
+date(Y, Mo, Da, Options) -->
+  html([\month_day(Da, Options)," ",\month(Y, Mo, Options)]).
 
 
 
-%! global_date_and_time(+Y, +Mo, +Da, +H, +Mi, +S, +Off, +Opts)// is det.
+%! floating_date_and_time(+Year:integer, +Month:between(1,12),
+%!                        +Day:between(1,31), +Hour:between(0,24),
+%!                        +Minute:between(0,59), +Second:float,
+%!                        +Options:list(compound))// is det.
 
-global_date_and_time(Y, Mo, Da, H, Mi, S, Off, Opts) -->
-  floating_date_and_time(Y, Mo, Da, H, Mi, S, Opts),
+floating_date_and_time(Y, Mo, Da, H, Mi, S, Options) -->
+  html([\date(Y, Mo, Da, Options)," ",\time(H, Mi, S, Options)]).
+
+
+
+%! global_date_and_time(+Year:integer, +Month:between(1,12),
+%!                      +Day:between(1,31), +Hour:between(0,24),
+%!                      +Minute:between(0,59), +Second:float,
+%!                      +Offset:between(-840,840),
+%!                      +Options:list(compound))// is det.
+
+global_date_and_time(Y, Mo, Da, H, Mi, S, Off, Options) -->
+  floating_date_and_time(Y, Mo, Da, H, Mi, S, Options),
   timezone_offset(Off).
 
 
 
-%! hour(+H, +Opts)// is det.
+%! hour(+Hour:between(0,24), +Options:list(compound))// is det.
 
 hour(H, _) -->
   html(span(class=hour, [\padding_zero(H),H])).
 
 
 
-%! minute(+Mi, +Opts)// is det.
+%! minute(+Minute:between(0,59), +Options:list(compound))// is det.
 
 minute(Mi, _) -->
   html(span(class=minute, [\padding_zero(Mi),Mi])).
 
 
 
-%! month(+Mo, +Opts)// is det.
+%! month(+Month:between(1,12), +Options:list(compound))// is det.
 
-month(Mo, Opts) -->
+month(Mo, Options) -->
   {
-    dict_get(ltag, Opts, en, LTag),
-    dict_get(month_abbr, Opts, false, IsAbbr),
+    dict_get(ltag, Options, en, LTag),
+    dict_get(month_abbr, Options, false, IsAbbr),
     once(month_name(Mo, LTag, Abbr, Full)),
     (IsAbbr == true -> Month = Abbr ; Month = Full)
   },
@@ -105,38 +113,39 @@ month(Mo, Opts) -->
 
 
 
-%! month(+Y, +Mo, +Opts)// is det.
+%! month(+Year:integer, +Month:between(1,12),
+%!       +Options:list(compound))// is det.
 
-month(Y, Mo, Opts) -->
-  html([\month(Mo, Opts)," ",\year(Y, Opts)]).
+month(Y, Mo, Options) -->
+  html([\month(Mo, Options)," ",\year(Y, Options)]).
 
 
 
-%! month_day(+Day, +Opts) is det.
+%! month_day(+Day:between(1,31), +Options:list(compound)) is det.
 
-month_day(Da, Opts) -->
-  html(span(class='month-day', \month_day_inner(Da, Opts))).
+month_day(Da, Options) -->
+  html(span(class='month-day', \month_day_inner(Da, Options))).
 
-month_day_inner(Da, Opts) -->
-  {dict_get(ltag, Opts, nl)}, !,
+month_day_inner(Da, Options) -->
+  {dict_get(ltag, Options, nl)}, !,
   html(Da).
-month_day_inner(Da, Opts) -->
-  ordinal(Da, Opts).
+month_day_inner(Da, Options) -->
+  ordinal(Da, Options).
 
 
 
-%! ordinal(+N, +Opts)// is det.
+%! ordinal(+N:nonneg, +Options:list(compound))// is det.
 
-ordinal(N, Opts) -->
+ordinal(N, Options) -->
   {
-    dict_get(ltag, Opts, en, LTag),
+    dict_get(ltag, Options, en, LTag),
     ordinal_suffix(N, LTag, Suffix)
   },
   html([N, sup([], Suffix)]).
 
 
 
-%! second(+S, +Opts)// is det.
+%! second(+Second:float, +Options:list(compound))// is det.
 
 second(S0, _) -->
   {S is floor(S0)},
@@ -144,45 +153,40 @@ second(S0, _) -->
 
 
 
-%! sign(+Sg)// is det.
+%! sign(+N:number)// is det.
 
-sign(Sg) -->
-  {Sg < 0}, !,
+sign(N) -->
+  {N < 0}, !,
   html("-").
 sign(_)  -->
   html("+").
 
 
 
-%! time(
-%!   +Hour:between(0,23),
-%!   +Minute:between(0,59),
-%!   +Second:float,
-%!   +Opts
-%! )// is det.
+%! time(+Hour:between(0,24), +Minute:between(0,59), +Second:float,
+%!      +Options:list(compound))// is det.
 
-time(H, Mi, S, Opts) -->
+time(H, Mi, S, Options) -->
   html(
     span(class=time, [
-      \hour(H, Opts),
+      \hour(H, Options),
       ":",
-      \minute(Mi, Opts),
+      \minute(Mi, Options),
       ":",
-      \second(S, Opts)
+      \second(S, Options)
     ])
   ).
 
 
 
-%! timezone_offset(+Off)// is det.
+%! timezone_offset(+Offset:between(-840,840))// is det.
 
 timezone_offset(Off) -->
-  html(span(class='timezone-offset', \timezone_offset_inner(Off))).
+  html(span(class='timezone-offset', \timezone_offset_(Off))).
 
-
-timezone_offset_inner(0) --> !,
+timezone_offset_(0) --> !,
   html("Z").
-timezone_offset_inner(Off) -->
+timezone_offset_(Off) -->
   {
     H is Off // 60,
     dcg_with_output_to(string(H0), generate_as_digits(H, 2)),
@@ -193,20 +197,21 @@ timezone_offset_inner(Off) -->
 
 
 
-%! year(+Y, +Opts)// is det.
+%! year(+Year:integer, +Options:list(compound))// is det.
 
 year(Y, _) -->
   html(span(class=year, Y)).
 
 
 
-%! yearless_date(+Y, +Mo, +Da, +Opts)// is det.
+%! yearless_date(+Month:between(1,12), +Day:between(1,31),
+%!               +Options:list(compound))// is det.
 
-yearless_date(_, Mo, Da, Opts) -->
+yearless_date(Mo, Da, Options) -->
   html(
     span(class='yearless-date', [
-      \month(Mo, Opts),
-      \month_day(Da, Opts)
+      \month(Mo, Options),
+      \month_day(Da, Options)
     ])
   ).
 

@@ -1,0 +1,16 @@
+#+TITLE: Prolog-Web
+#+AUTHOR: Wouter Beek
+
+Build websites with Prolog.
+
+* HTML
+
+** entities
+
+| *Symbol*                | *HTML entity*   |
+| :---------------------: | :-------------: |
+| Equivalence             | ~&(equiv)~      |
+| Left angular bracket    | ~&(lang)~       |
+| Right angular bracket   | ~&(rang)~       |
+| Set membership          | ~&(isin)~       |
+| Subclass                | ~&(sube)~       |

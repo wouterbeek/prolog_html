@@ -1,7 +1,7 @@
 :- module(
   html_date_time_machine,
   [
-    html_date_time_machine/2 % +DT, -MachineString
+    html_date_time_machine/2 % +Datetime, -MachineString
   ]
 ).
 
@@ -12,9 +12,10 @@
 @see Grammar http://www.w3.org/TR/html5/infrastructure.html#dates-and-times
 @see Examples http://www.w3.org/TR/html5/text-level-semantics.html#the-time-element
 @tbd We cannot expect rational representations for seconds yet.
-@version 2017/05
+@version 2017/05, 2017/08
 */
 
+:- use_module(library(date_time)).
 :- use_module(library(dcg/dcg_ext)).
 :- use_module(library(error)).
 :- use_module(library(list_ext)).
@@ -25,9 +26,9 @@
 
 
 
-%! date(+DT)// is det.
+%! date(+Datetime:dt)// is det.
 
-date(date_time(Y,Mo,D,H,Mi,S,Off)) -->
+date(dt(Y,Mo,D,H,Mi,S,Off)) -->
   (   {ground(date(Y,Mo,D,H,Mi,S,Off))}
   ->  global_date_and_time(Y, Mo, D, H, Mi, S, Off)
   ;   {ground(date(Y,Mo,D,H,Mi,S))}
@@ -48,7 +49,7 @@ date(date_time(Y,Mo,D,H,Mi,S,Off)) -->
 
 
 
-%! date(+Year:nonneg, +Month:between(1,12), +Day:between(1,31))// .
+%! date(+Year:integer, +Month:between(1,12), +Day:between(1,31))// .
 %
 % A string is a **valid date string** representing a year, month, and
 % day if it consists of the following components in the given order:
@@ -83,14 +84,9 @@ date("2011-11-12", 2011, 11, 12).
 
 
 
-%! floating_date_and_time(
-%!   +Year:nonneg,
-%!   +Month:between(1,12),
-%!   +Day:between(1,31),
-%!   +Hour:between(0,23),
-%!   +Minute:between(0,59),
-%!   +Second:rational
-%! )// is det.
+%! floating_date_and_time(+Year:integer, +Month:between(1,12),
+%!                        +Day:between(1,31), +Hour:between(0,24),
+%!                        +Minute:between(0,59), +Second:rational)// is det.
 %
 % A **floating date and time** consists of a specific
 % proleptic-Gregorian date, consisting of a year, a month, and a day,
@@ -127,9 +123,8 @@ floating_date_and_time(Y, Mo, D, H, Mi, S) -->
 
 :- begin_tests(floating_date_and_time).
 
-test(
-  floating_date_and_time,
-  [forall(floating_date_and_time(X,Y,Mo,D,H,Mi,S)),nondet]
+test(floating_date_and_time,
+     [forall(floating_date_and_time(X,Y,Mo,D,H,Mi,S)),nondet]
 ):-
   string_phrase(floating_date_and_time(Y,Mo,D,H,Mi,S), X0), X0 = X.
 
@@ -141,15 +136,10 @@ floating_date_and_time("2011-11-12T14:54:39", 2011, 11, 12, 14, 54, 39).
 
 
 
-%! global_date_and_time(
-%!   +Year:nonneg,
-%!   +Month:between(1,12),
-%!   +Day:between(1,31),
-%!   +Hour:between(0,23),
-%!   +Minute:between(0,59),
-%!   +Second:rational,
-%!   +Offset:between(-840,840)
-%! )// is det.
+%! global_date_and_time(+Year:integer, +Month:between(1,12),
+%!                      +Day:between(1,31), +Hour:between(0,24),
+%!                      +Minute:between(0,59), +Second:rational,
+%!                      +Offset:between(-840,840))// is det.
 %
 % A **global date and time** consists of a specific
 % proleptic-Gregorian date, consisting of a year, a month, and a day,
@@ -195,7 +185,7 @@ global_date_and_time("2011-11-12T06:54:39-08:00", 2011, 11, 12, 6, 54, 39, -480)
 
 
 
-%! html_date_time_machine(+DT, -MachineString) is det.
+%! html_date_time_machine(+Datetime:dt, -MachineString:string) is det.
 
 html_date_time_machine(DT, MachineString):-
   once(string_phrase(date(DT), MachineString)).
@@ -232,11 +222,7 @@ month("2011-11", 2011, 11).
 
 
 
-%! time(
-%!   +Hour:between(0,23),
-%!   +Minute:between(0,59),
-%!   +Second:rational
-%! )// is det.
+%! time(+Hour:between(0,24), +Minute:between(0,59), +Second:rational)// is det.
 %
 % A **time** consists of a specific time with no time-zone
 % information, consisting of an hour, a minute, a second, and a
@@ -283,7 +269,6 @@ time(H, Mi, S) -->
   generate_as_digits(Mi, 2),
   ({S =:= 0} -> "" ; ":", seconds_non_zero(S)).
 
-
 seconds_non_zero(S) -->
   {
     decimal_parts(S, SI, SFrac),
@@ -297,7 +282,7 @@ seconds_non_zero(S) -->
         fractional_weights(SFrac, Weights0),
         list_truncate(Weights0, 3, Weights)
       },
-      '*'(digit_weight, Weights)
+      *(digit_weight, Weights)
   ).
 
 :- begin_tests(time).
@@ -371,7 +356,7 @@ timezone_offset("-08:00", -480).
 
 
 
-%! week(+Year:nonneg, +Week:between(1,53))// is det.
+%! week(+Year:integer, +Week:between(1,53))// is det.
 %
 % A string is a **valid week string** representing a week-year and
 % week if it consists of the following components in the given order:
@@ -395,11 +380,8 @@ week(Y, W) -->
 
 
 
-%! yearless_date(
-%!   +Year:nonneg,
-%!   +Month:between(1,12),
-%!   +Day:between(1,31)
-%! )// is det.
+%! yearless_date(+Year:integer, +Month:between(1,12),
+%!               +Day:between(1,31))// is det.
 %
 % A **yearless date** consists of a Gregorian month and a day within
 % that month, but with no associated year. [GREGORIAN]
@@ -444,34 +426,7 @@ yearless_date("11-12", _, 11, 12).
 
 % HELPERS %
 
-%! number_of_days_in_month_of_year(
-%!   ?Year:nonneg,
-%!   ?Month:between(1,12),
-%!   ?MaxDay:between(28,31)
-%! ) is nondet.
-%
-% The number of days in month of year is:
-%
-%   * 31 if month is 1, 3, 5, 7, 8, 10, or 12;
-%
-%   * 30 if month is 4, 6, 9, or 11;
-%
-%   * 29 if month is 2 and year is a number divisible by 400, or if
-%     year is a number divisible by 4 but not by 100;
-%
-%   * 28 otherwise.
-
-number_of_days_in_month_of_year(_, Mo, 31):-
-  memberchk(Mo, [1,3,5,7,8,10,12]), !.
-number_of_days_in_month_of_year(_, Mo, 30):-
-  memberchk(Mo, [4,6,9,11]), !.
-number_of_days_in_month_of_year(Y, 2, 29):-
-  (Y mod 400 =:= 0 ; (Y mod 4 =:= 0, Y mod 100 =\= 0)), !.
-number_of_days_in_month_of_year(_, _, 28).
-
-
-
-%! year(+Year:nonneg)// is det.
+%! year(+Year:integer)// is det.
 
 year(Y) -->
   {Y > 9999}, !,

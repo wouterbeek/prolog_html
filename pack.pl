@@ -1,7 +1,7 @@
 author('Wouter Beek', 'wouter@triply.cc').
-download('https://github.com/wouterbeek/html_ext/releases/tag/*.zip').
+download('https://github.com/wouterbeek/Prolog-Web/releases/tag/*.zip').
 keywords(['HTML']).
-name(html_ext).
-requires(swipl_ext).
+name('Prolog-Web').
+requires('Prolog-Library-Collection').
 title('Extended HTML support for SWI-Prolog.').
 version('0.0.12').

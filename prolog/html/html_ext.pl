@@ -1,24 +1,23 @@
 :- module(
   html_ext,
   [
-    button//2,             % +Attrs, :Content_0
+    button//2,             % +Attributes, :Content_0
     deck//2,               % :Card_1, +Items
-    deck//3,               % +Attrs, :Card_1, +Items
+    deck//3,               % +Attributes, :Card_1, +Items
     dropdown_menu//3,      % :Top_0, :Item_1, +Items
-    dropdown_menu//4,      % +Attrs, :Top_0, :Item_1, +Items
+    dropdown_menu//4,      % +Attributes, :Top_0, :Item_1, +Items
     external_link//1,      % +Uri
     favicon//0,
-    flag_icon//1,          % +LTag
+    flag_icon//1,          % +LanguageTag
     footer_panel//3,       % +Image, :Top_0, :Bottom_0
     google_analytics//0,
     html_call//1,          % :Html_0
     html_call//2,          % :Html_1, +Arg1
     html_date_time//1,     % +Something
-    html_date_time//2,     % +Something, +Opts
+    html_date_time//2,     % +Something, +Options
     html_ellipsis//2,      % +String, +MaxLen
     html_maplist//2,       % :Html_1, +Args1
     html_nlp_string//1,    % +Name
-    html_page/2,           % :Head_0, :Body_0
     html_page/3,           % +Context, :Head_0, :Body_0
     html_seplist//2,       % :Html_0, :Sep_0
     html_seplist//3,       % :Html_1, :Sep_0, +Args
@@ -31,7 +30,7 @@
     icon_button//1,        % +Name
     icon_button//2,        % +Name, +Func
     ignore//1,             % :Html_0
-    language_menu//1,      % +LTags
+    language_menu//1,      % +LanguageTags
     logo/1,                % -Image
     mail_icon//1,          % +Uri
     mail_link_and_icon//1, % +Uri
@@ -43,14 +42,12 @@
     pipe//0,
     row_1//1,              % :ContentA_0
     row_1//2,              % +WidthsA, :ContentA_0
-    row_1//3,              % +Attrs, +WidthsA, :ContentA_0
+    row_1//3,              % +Attributes, +WidthsA, :ContentA_0
     row_3//3,              % :ContentA_0, :ContentB_0, :ContentC_0
-    row_3//6,              % +WidthsA, :ContentA_0,
-                           % +WidthsB, :ContentB_0
+    row_3//6,              % +WidthsA, :ContentA_0, +WidthsB, :ContentB_0,
                            % +WidthsC, :ContentC_0
-    row_3//7,              % +Attrs, +WidthsA, :ContentA_0,
-                           %         +WidthsB, :ContentB_0
-                           % +WidthsC, :ContentC_0
+    row_3//7,              % +Attributes, +WidthsA, :ContentA_0, +WidthsB
+                           % :ContentB_0, +WidthsC, :ContentC_0
     submit_button//0,
     submit_button//1,      % :Content_0
     table//1,              % :Body_0
@@ -82,7 +79,7 @@ html({|html||...|}).
 ```
 
 @author Wouter Beek
-@version 2017/04-2017/06
+@version 2017/04-2017/08
 */
 
 :- use_module(library(apply)).
@@ -110,9 +107,8 @@ html({|html||...|}).
    dropdown_menu(+, html, :, +, ?, ?),
    footer_panel(+, html, html, ?, ?),
    html_call(html, ?, ?),
-   html_page(html, html),
    html_page(+, html, html),
-   html_page_head0(html, ?, ?),
+   html_page_head(html, ?, ?),
    html_seplist(html, html, ?, ?),
    html_seplist(3, html, +, ?, ?),
    ignore(html, ?, ?),
@@ -167,59 +163,6 @@ html({|html||...|}).
      bootstrap,
      [requires([css(bootstrap),js(bootstrap)]),virtual(true)]
    ).
-
-% Dropzone
-:- if(debugging(css(dropzone))).
-  :- html_resource(
-       css(dropzone),
-       [requires([css('dropzone-4.3.0.css')]),virtual(true)]
-     ).
-:- else.
-  :- html_resource(
-       css(dropzone),
-       [requires([css('dropzone-4.3.0.min.css')]),virtual(true)]
-     ).
-:- endif.
-:- if(debugging(js(dropzone))).
-  :- html_resource(
-       js(dropzone),
-       [requires([js('dropzone-4.3.0.js')]),virtual(true)]
-     ).
-:- else.
-  :- html_resource(
-       js(dropzone),
-       [requires([js('dropzone-4.3.0.min.js')]),virtual(true)]
-     ).
-:- endif.
-:- html_resource(
-     dropzone,
-     [requires([css(dropzone),js(dropzone)]),virtual(true)]
-   ).
-
-% Medium editor
-:- if(debugging(css(editor))).
-  :- html_resource(
-       css(editor),
-       [requires([css('medium-editor-5.23.0.css')]),virtual(true)]
-     ).
-:- else.
-  :- html_resource(
-       css(editor),
-       [requires([css('medium-editor-5.23.0.min.css')]),virtual(true)]
-     ).
-:- endif.
-:- if(debugging(js(editor))).
-  :- html_resource(
-       js(editor),
-       [requires([js('medium-editor-5.23.0.js')]),virtual(true)]
-     ).
-:- else.
-  :- html_resource(
-       js(editor),
-       [requires([js('medium-editor-5.23.0.min.js')]),virtual(true)]
-     ).
-:- endif.
-:- html_resource(editor, [requires([css(editor),js(editor)]),virtual(true)]).
 
 % FontAwesome
 :- if(debugging(css('font-awesome'))).
@@ -317,38 +260,38 @@ html({|html||...|}).
 
 
 
-%! button(+Attrs, :Content_0)// is det.
+%! button(+Attributes:list(compound), :Content_0)// is det.
 
-button(Attrs1, Content_0) -->
-  {merge_attributes([class=[btn,'btn-default']], Attrs1, Attrs2)},
-  html(button(Attrs2, Content_0)).
+button(Attributes1, Content_0) -->
+  {merge_attributes([class=[btn,'btn-default']], Attributes1, Attributes2)},
+  html(button(Attributes2, Content_0)).
 
 
 
-%! deck(:Card_1, +Items)// is det.
-%! deck(+Attrs, :Card_1, +Items)// is det.
+%! deck(:Card_1, +Items:list)// is det.
+%! deck(+Attributes, :Card_1, +Items:list)// is det.
 
 deck(Card_1, L) -->
   deck([], Card_1, L).
 
 
-deck(Attrs1, Card_1, L) -->
-  {merge_attributes([class=['card-columns']], Attrs1, Attrs2)},
-  html(div(Attrs2, \html_maplist(Card_1, L))).
+deck(Attributes1, Card_1, L) -->
+  {merge_attributes([class=['card-columns']], Attributes1, Attributes2)},
+  html(div(Attributes2, \html_maplist(Card_1, L))).
 
 
 
-%! dropdown_menu(:Top_0, :Item_1, +Items)// is det.
-%! dropdown_menu(+Attrs, :Top_0, :Item_1, +Items)// is det.
+%! dropdown_menu(:Top_0, :Item_1, +Items:list)// is det.
+%! dropdown_menu(+Attributes, :Top_0, :Item_1, +Items:list)// is det.
 
 dropdown_menu(Top_0, Item_1, L) -->
   dropdown_menu([], Top_0, Item_1, L).
 
 
-dropdown_menu(Attrs1, Top_0, Item_1, L) -->
-  {merge_attributes(Attrs1, [class=dropdown], Attrs2)},
+dropdown_menu(Attributes1, Top_0, Item_1, L) -->
+  {merge_attributes(Attributes1, [class=dropdown], Attributes2)},
   html(
-    li(Attrs2, [
+    li(Attributes2, [
       a([
         'aria-expanded'=false,
         'aria-haspopup'=true,
@@ -368,7 +311,7 @@ html_list_item(Item_1, X) -->
 
 
 
-%! external_link(+Uri)// is det.
+%! external_link(+Uri:atom)// is det.
 
 external_link(Uri) -->
   html(a([href=Uri,target='_blank'], \icon(external_link))).
@@ -386,14 +329,14 @@ favicon -->
 
 
 
-%! flag_icon(+LTag)// is det.
+%! flag_icon(+LanguageTag)// is det.
 
-flag_icon(LTag) -->
+flag_icon(LanguageTag) -->
   {
-    file_name_extension(LTag, svg, File),
+    file_name_extension(LanguageTag, svg, File),
     directory_file_path(flag_4x3, File, Path)
   },
-  html(span(class=[label,'label-primary'], [\flag_icon_img(Path)," ",LTag])).
+  html(span(class=[label,'label-primary'], [\flag_icon_img(Path)," ",LanguageTag])).
 
 
 flag_icon_img(Path) -->
@@ -456,8 +399,8 @@ html_caret -->
 
 
 
-%! html_date_time(+Something)// is det.
-%! html_date_time(+Something, +Opts)// is det.
+%! html_date_time(+Datetime:dt)// is det.
+%! html_date_time(+Datetime:dt, +Options:list(compound))// is det.
 %
 % Generates human- and machine-readable HTML for date/times.
 %
@@ -479,27 +422,26 @@ html_caret -->
 %     Whether the human-readable representation of month names should
 %     use abbreviated names or not.  The default is `false`.
 
-html_date_time(Something) -->
-  {current_ltag(LTag)}, !,
-  html_date_time(Something, _{ltag: LTag}).
+html_date_time(Datetime) -->
+  {current_ltag(LanguageTag)}, !,
+  html_date_time(Datetime, _{ltag: LanguageTag}).
 
 
-html_date_time(Something, Opts) -->
+html_date_time(Datetime1, Options) -->
   {
-    something_to_date_time(Something, DateTime),
-    html_date_time_machine(DateTime, MachineString),
-    dict_get(masks, Opts, [], Masks),
-    date_time_masks(Masks, DateTime, MaskedDateTime)
+    html_date_time_machine(Datetime1, MachineString),
+    dict_get(masks, Options, [], Masks),
+    date_time_masks(Masks, Datetime1, Datetime2)
   },
   html(
     time(datetime=MachineString,
-      \html_date_time_human(MaskedDateTime, Opts)
+      \html_date_time_human(Datetime2, Options)
     )
   ).
 
 
 
-%! html_ellipsis(+String, +MaxLen)// is det.
+%! html_ellipsis(+String:string, +MaxLength:nonneg)// is det.
 
 html_ellipsis(String, MaxLen) -->
   {string_ellipsis(String, MaxLen, Ellipsis)},
@@ -508,14 +450,14 @@ html_ellipsis(String, MaxLen) -->
 
 
 %! html_hook(+Term)// is det.
-%! html_hook(+Opts, +Term)// is det.
+%! html_hook(+Options:list(compound), +Term)// is det.
 
 html_hook(Term) -->
   html_hook(_{}, Term).
 
 
-html_hook(Opts, Term) -->
-  html:html_hook(Opts, Term), !.
+html_hook(Options, Term) -->
+  html:html_hook(Options, Term), !.
 html_hook(_, Term) -->
   html:html_hook(Term), !.
 html_hook(_, Html_0) -->
@@ -550,7 +492,7 @@ html:html_hook(uri(Uri)) -->
 
 
 
-%! html_maplist(:Html_1, +Args1) .
+%! html_maplist(:Html_1, +Arguments1:list(compound))// .
 
 html_maplist(_, []) --> !, [].
 html_maplist(Html_1, [H|T]) -->
@@ -559,7 +501,7 @@ html_maplist(Html_1, [H|T]) -->
 
 
 
-%! html_nlp_string(+Name)// is det.
+%! html_nlp_string(+Name:atom)// is det.
 
 html_nlp_string(Name) -->
   {nlp_string(Name, String)},
@@ -568,59 +510,19 @@ html_nlp_string(Name) -->
 
 
 %! html_page(:Head_0, :Body_0) is det.
-%! html_page(+Context, :Head_0, :Body_0) is det.
-
-html_page(Head_0, Body_0) :-
-  html_page(cms([]), Head_0, Body_0).
-
 
 html_page(Context, Head_0, Body_0) :-
   format(current_output, "X-Content-Type-Options: nosniff~n", []),
   format(current_output, "X-Frame-Options: DENY~n", []),
   format(current_output, "X-XSS-Protection: 1; mode=block~n", []),
-  reply_html_page(Context, html_page_head0(Head_0), Body_0).
+  reply_html_page(Context, html_page_head(Head_0), Body_0).
 
-html_page_head0(Head_0) -->
+html_page_head(Head_0) -->
   html(
     head([
-      \meta_ie_latest0,
-      \meta_viewport0,
+      \meta_ie_latest,
+      \meta_viewport,
       \html_call(Head_0)
-    ])
-  ).
-
-%! meta_ie_latest0// is det.
-%
-% Non-standard HTTP-like header that tells Internet Explorer to use
-% the most recent version of its rendering engine.
-
-meta_ie_latest0 -->
-  html(meta(['http-equiv'='X-UA-Compatible',content='IE=edge'], [])).
-
-%! meta_viewport0// is det.
-%
-% `width=device-width` instructs the page to match the screen’s width
-% in device-independent pixels.  This allows the page to reflow
-% content to match different screen sizes.
-%
-% Some browsers will keep the page’s width constant when rotating to
-% landscape mode, and zoom rather than reflow to fill the screen.
-% Adding the attribute `initial-scale=1` instructs browsers to
-% establish a 1:1 relationship between CSS pixels and
-% device-independent pixels regardless of device orientation, and
-% allows the page to take advantage of the full landscape width.
-%
-% `user-scalable=yes` allows a user to zoom in/out on the viewport for
-% accessibility.
-%
-% @compat Use a comma to separate attributes to ensure older browsers
-%         can properly parse the attributes.
-
-meta_viewport0 -->
-  html(
-    meta([
-      name="viewport",
-      content="width=device-width,initial-scale=1,shrink-to-fit=no"
     ])
   ).
 
@@ -724,10 +626,10 @@ icon_button(Name) -->
 icon_button(Name, Func) -->
   {
     icon_class_title(Name, Class, Title),
-    (var(Func) -> Attrs = [] ; Attrs = [onclick=Func])
+    (var(Func) -> Attributes = [] ; Attributes = [onclick=Func])
   },
   html(
-    button([class=[btn,'btn-default',af,Class],title=Title|Attrs], [])
+    button([class=[btn,'btn-default',af,Class],title=Title|Attributes], [])
   ).
 
 
@@ -776,18 +678,18 @@ ignore(_) --> [].
 
 
 
-%! language_menu(+LTags)// is det.
+%! language_menu(+LanguageTags)// is det.
 
-language_menu(LTags) -->
+language_menu(LanguageTags) -->
   {
-    setting(nlp:lrange, [LTag|_]), ground(LTag), !,
+    setting(nlp:lrange, [LanguageTag|_]), ground(LanguageTag), !,
     nlp_string(language, Label)
   },
   navbar_dropdown_menu(
     'language-menu',
     Label,
-    language_menu_item(LTag),
-    LTags
+    language_menu_item(LanguageTag),
+    LanguageTags
   ),
   js_script({|javascript(_)||
 $( "#language-menu" ).change(function() {
@@ -799,13 +701,13 @@ $( "#language-menu" ).change(function() {
   |}).
 language_menu(_) --> [].
 
-language_menu_item(LTag0, LTag) -->
-  {(LTag0 == LTag -> T = [selected=selected] ; T = [])},
-  html(option([value=LTag|T], \html_nlp_string(LTag))).
+language_menu_item(LanguageTag0, LanguageTag) -->
+  {(LanguageTag0 == LanguageTag -> T = [selected=selected] ; T = [])},
+  html(option([value=LanguageTag|T], \html_nlp_string(LanguageTag))).
 
 
 
-%! logo(-Image) is det.
+%! logo(-Image:atom) is det.
 
 logo(Image) :-
   setting(html:logo, Base),
@@ -814,14 +716,14 @@ logo(Image) :-
 
 
 
-%! mail_icon(+Uri)// is det.
+%! mail_icon(+Uri:atom)// is det.
 
 mail_icon(Uri) -->
   html(a([href=Uri,property='foaf:mbox',target='_blank'], [" ",\icon(mail)])).
 
 
 
-%! mail_link_and_icon(+Uri)// is det.
+%! mail_link_and_icon(+Uri:atom)// is det.
 
 mail_link_and_icon(Uri) -->
   {uri_components(Uri, uri_components(mailto,_,Label,_,_))},
@@ -905,10 +807,49 @@ meta_authors -->
 
 
 
-%! meta_description(+String)// is det.
+%! meta_description(+Description:string)// is det.
 
 meta_description(String) -->
   html(meta([name="description",content=String], [])).
+
+
+
+%! meta_ie_latest// is det.
+%
+% Non-standard HTTP-like header that tells Internet Explorer to use
+% the most recent version of its rendering engine.
+
+meta_ie_latest -->
+  html(meta(['http-equiv'='X-UA-Compatible',content='IE=edge'], [])).
+
+
+
+%! meta_viewport// is det.
+%
+% `width=device-width' instructs the page to match the screen’s width
+% in device-independent pixels.  This allows the page to reflow
+% content to match different screen sizes.
+%
+% Some browsers will keep the page's width constant when rotating to
+% landscape mode, and zoom rather than reflow to fill the screen.
+% Adding the attribute `initial-scale=1' instructs browsers to
+% establish a 1:1 relationship between CSS pixels and
+% device-independent pixels regardless of device orientation, and
+% allows the page to take advantage of the full landscape width.
+%
+% `user-scalable=yes' allows a user to zoom in/out on the viewport for
+% accessibility.
+%
+% @compat Use a comma to separate attributes to ensure older browsers
+%         can properly parse the attributes.
+
+meta_viewport -->
+  html(
+    meta([
+      name="viewport",
+      content="width=device-width,initial-scale=1,shrink-to-fit=no"
+    ])
+  ).
 
 
 
@@ -949,7 +890,8 @@ hamburger -->
 
 
 
-%! navbar_dropdown_menu(+Name, +Label, :Item_1, +Items)// is det.
+%! navbar_dropdown_menu(+Name:atom, +Label:string, :Item_1,
+%!                      +Items:list)// is det.
 %
 % @tbd What does `role(search)` do?
 
@@ -967,7 +909,7 @@ navbar_dropdown_menu(Name, Label, Item_1, L) -->
 
 
 
-%! open_graph(+Key, +Value)// is det.
+%! open_graph(+Key:atom, +Value:atom)// is det.
 
 open_graph(Key0, Val) -->
   {atomic_list_concat([og,Key0], :, Key)},
@@ -984,7 +926,7 @@ pipe -->
 
 %! row_1(:ContentA_0)// is det.
 %! row_1(+WidthsA, :ContentA_0)// is det.
-%! row_1(+Attrs, +WidthsA, :ContentA_0)// is det.
+%! row_1(+Attributes:list(compound), +WidthsA, :ContentA_0)// is det.
 
 row_1(ContentA_0) -->
   row_1(12, ContentA_0).
@@ -994,13 +936,13 @@ row_1(WidthsA, ContentA_0) -->
   row_1([], WidthsA, ContentA_0).
 
 
-row_1(Attrs1, WidthsA, ContentA_0) -->
+row_1(Attributes1, WidthsA, ContentA_0) -->
   {
-    merge_attributes(Attrs1, [class='container-fluid'], Attrs2),
+    merge_attributes(Attributes1, [class='container-fluid'], Attributes2),
     widths0(WidthsA, ClassesA)
   },
   html(
-    div(Attrs2,
+    div(Attributes2,
       div(class=row,
         div(class=[col|ClassesA], ContentA_0)
       )
@@ -1012,7 +954,7 @@ row_1(Attrs1, WidthsA, ContentA_0) -->
 %! row_3(:ContentA_0, :ContentB_0, :ContentC_0)// is det.
 %! row_3(+WidthsA, :ContentA_0, +WidthsB, :ContentB_0,
 %!       +WidthsC, :ContentC_0)// is det.
-%! row_3(+Attrs, +WidthsA, :ContentA_0, +WidthsB, :ContentB_0,
+%! row_3(+Attributes, +WidthsA, :ContentA_0, +WidthsB, :ContentB_0,
 %!       +WidthsC, :ContentC_0)// is det.
 
 row_3(ContentA_0, ContentB_0, ContentC_0) -->
@@ -1023,14 +965,14 @@ row_3(WidthsA, ContentA_0, WidthsB, ContentB_0, WidthsC, ContentC_0) -->
   row_3([], WidthsA, ContentA_0, WidthsB, ContentB_0, WidthsC, ContentC_0).
 
 
-row_3(Attrs1, WidthsA, ContentA_0, WidthsB, ContentB_0,
+row_3(Attributes1, WidthsA, ContentA_0, WidthsB, ContentB_0,
       WidthsC, ContentC_0) -->
   {
-    merge_attributes(Attrs1, [class=['container-fluid']], Attrs2),
+    merge_attributes(Attributes1, [class=['container-fluid']], Attributes2),
     maplist(widths0, [WidthsA,WidthsB,WidthsC], [ClassesA,ClassesB,ClassesC])
   },
   html(
-    div(Attrs2,
+    div(Attributes2,
       div(class=row, [
         div(class=[col|ClassesA], ContentA_0),
         div(class=[col,middle|ClassesB], ContentB_0),
@@ -1085,7 +1027,7 @@ table_caption(Caption_0) -->
 
 
 
-%! table_content(:Cell_1, +Rows)// is det.
+%! table_content(:Cell_1, +Rows:list)// is det.
 
 table_content(Cell_1, [head(HeaderRow)|DataRows]) -->
   table(
@@ -1107,8 +1049,8 @@ table_data_cell(Cell_1, Term) -->
 
 
 
-%! table_data_row(+Row)// is det.
-%! table_data_row(:Cell_1, +Row)// is det.
+%! table_data_row(+Row:list)// is det.
+%! table_data_row(:Cell_1, +Row:list)// is det.
 
 table_data_row(Row) -->
   table_data_row(html_hook, Row).
@@ -1135,8 +1077,8 @@ table_header_cell(Cell_1, Term) -->
 
 
 
-%! table_header_row(+Row)// is det.
-%! table_header_row(:Cell_1, +Row)// is det.
+%! table_header_row(+Row:list)// is det.
+%! table_header_row(:Cell_1, +Row:list)// is det.
 
 table_header_row(Row) -->
   table_header_row(html_hook, Row).
@@ -1147,15 +1089,15 @@ table_header_row(Cell_1, Row) -->
 
 
 
-%! title(+Strs)// is det.
+%! title(+Stings:list(string))// is det.
 
-title(Strs) -->
-  {atomics_to_string(Strs, " ⎯ ", Str)},
-  html(title(Str)).
+title(Strings) -->
+  {atomics_to_string(Strings, " ⎯ ", String)},
+  html(title(String)).
 
 
 
-%! tooltip(+String, :Content_0)// is det.
+%! tooltip(+String:string, :Content_0)// is det.
 
 tooltip(String, Content_0) -->
   html(span(['data-toggle'=tooltip,title=String], Content_0)).
@@ -1198,7 +1140,8 @@ vote_up(Vote) -->
 
 % HELPERS %
 
-%! merge_attributes(+Attrs1, +Attrs2, -Attrs3) is det.
+%! merge_attributes(+Attributes1:list(compound), +Attributes2:list(compound),
+%!                  -Attributes3:list(compound)) is det.
 %
 % Merge two lists of HTML attributes into one.
 
