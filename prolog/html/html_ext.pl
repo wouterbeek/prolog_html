@@ -16,6 +16,8 @@
     html_date_time//1,     % +Something
     html_date_time//2,     % +Something, +Options
     html_ellipsis//2,      % +String, +MaxLen
+    html_if_then//2,       % :If_0, :Then_0
+    html_if_then_else//3,  % :If_0, :Then_0, :Else_0
     html_maplist//2,       % :Html_1, +Args1
     html_nlp_string//1,    % +Name
     html_page/3,           % +Context, :Head_0, :Body_0
@@ -107,6 +109,8 @@ html({|html||...|}).
    dropdown_menu(+, html, :, +, ?, ?),
    footer_panel(+, html, html, ?, ?),
    html_call(html, ?, ?),
+   html_if_then(0, html, ?, ?),
+   html_if_then_else(0, html, html, ?, ?),
    html_page(+, html, html),
    html_page_head(html, ?, ?),
    html_seplist(html, html, ?, ?),
@@ -214,6 +218,8 @@ html({|html||...|}).
     dropdown_menu(2, 3, +, ?, ?),
     dropdown_menu(+, 2, 3, +, ?, ?),
     html_call(3, +, ?, ?),
+    html_if_then(0, 2, ?, ?),
+    html_if_then_else(0, 2, 2, ?, ?),
     html_list_item(3, +, ?, ?),
     html_maplist(3, +, ?, ?),
     html_set(3, +, ?, ?),
@@ -489,6 +495,20 @@ html:html_hook(thousands(N)) -->
 % URI
 html:html_hook(uri(Uri)) -->
   html:html_hook(iri(Uri)).
+
+
+
+%! html_if_then(:If_0, :Then_0)// is det.
+
+html_if_then(If_0, Then_0) -->
+  html_if_then_else(If_0, Then_0, html([])).
+
+
+
+%! html_if_then_else(:If_0, :Then_0, :Else_0)// is det.
+
+html_if_then_else(If_0, Then_0, Else_0) -->
+  ({call(If_0)} -> html_call(Then_0) ; html_call(Else_0)).
 
 
 

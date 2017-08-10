@@ -61,8 +61,6 @@
     html_to_atom/2,         % :Html_0, -A
     human_integer//1,       % +N
     idle//1,                % +Time
-    if_then//2,             % :If_0, :Then_0
-    if_then_else//3,        % :If_0, :Then_0, :Else_0
     image_header//2,        % +Img, :Html_0
     input_boolean//1,       % +Name
     input_checkbox//2,      % +Name, +Attrs
@@ -184,8 +182,6 @@ html({|html||...|}).
    html_dq(html, ?, ?),
    html_sq(html, ?, ?),
    html_to_atom(html, -),
-   if_then(0, html, ?, ?),
-   if_then_else(0, html, html, ?, ?),
    image_header(+, html, ?, ?),
    link_button(+, html, ?, ?),
    nonvar(html, ?, ?),
@@ -233,8 +229,6 @@ html({|html||...|}).
     html_select(+, 1, 3, ?, ?),
     html_triple(3, +, +, +, ?, ?),
     html_tuple(3, +, ?, ?),
-    if_then(0, 2, ?, ?),
-    if_then_else(0, 2, 2, ?, ?),
     list(3, +, ?, ?),
     nonvar(3, +, ?, ?),
     once(3, ?, ?),
@@ -1044,20 +1038,6 @@ idle(Time) -->
     Sec is Secs mod 60
   },
   html("~`0t~d~2|:~`0t~d~5|"-[Min, Sec]).
-
-
-
-%! if_then(:If_0, :Then_0)// is det.
-
-if_then(If_0, Then_0) -->
-  if_then_else(If_0, Then_0, []).
-
-
-
-%! if_then_else(:If_0, :Then_0, :Else_0)// is det.
-
-if_then_else(If_0, Then_0, Else_0) -->
-  ({call(If_0)} -> html_call(Then_0) ; html_call(Else_0)).
 
 
 
