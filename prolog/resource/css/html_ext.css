@@ -182,6 +182,7 @@ q:after {
 /* Navigation bar */
 
 nav {
+  margin-right: 5px;
   min-height: 50px;
 }
 
@@ -189,9 +190,8 @@ nav .navbar-brand {
   margin-left: 5px;
 }
 
-nav .navbar-brand img {
-  height: 40px;
-  width: 40px;
+nav img {
+  height: 45px;
 }
 
 nav .brand-txt {
