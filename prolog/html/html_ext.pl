@@ -85,6 +85,7 @@ html({|html||...|}).
 */
 
 :- use_module(library(apply)).
+:- use_module(library(atom_ext)).
 :- use_module(library(date_time)).
 :- use_module(library(debug)).
 :- use_module(library(dict_ext)).
