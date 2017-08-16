@@ -898,35 +898,27 @@ meta_viewport -->
 %! navbar(:Brand_0, :Menu_0, :Right_0)// is det.
 
 navbar(Brand_0, Menu_0, Right_0) -->
-  html([
-    nav([
-      class=[
-        'bg-faded',
-        'fixed-top',
-        navbar,
-        'navbar-light',
-        'navbar-toggleable-md'
-      ]
-    ], [
-        \hamburger,
-        a([class='navbar-brand',href='/'], Brand_0),
-        div([class=[collapse,'navbar-collapse'],id=target], [
-          ul(class=['navbar-nav','mr-auto'], Menu_0),
-          ul(class='navbar-nav', Right_0)
-        ])
-      ]
-    )
-  ]).
+  html(
+    nav(class=['bg-light','fixed-top',navbar,'navbar-expand-lg','navbar-light'], [
+      a([class='navbar-brand',href='/'], Brand_0),
+      \navbar_toggler,
+      div([class=[collapse,'navbar-collapse'],id=target], [
+        ul(class=['navbar-nav','mr-auto'], Menu_0),
+        ul(class='navbar-nav', Right_0)
+      ])
+    ])
+  ).
 
-hamburger -->
+navbar_toggler -->
   html(
     button([
-      'aria-controls'='target#',
+      'aria-controls'=target,
       'aria-expanded'=false,
       'aria-label'="Toggle navigation",
-      class=[collapsed,'navbar-toggler','navbar-toggler-right'],
-      'data-target'='target#',
-      'data-toggle'=collapse
+      class='navbar-toggler',
+      'data-target'='#target',
+      'data-toggle'=collapse,
+      type=button
     ], span(class='navbar-toggler-icon', []))
   ).
 
