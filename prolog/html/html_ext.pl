@@ -21,6 +21,7 @@
     html_maplist//2,       % :Html_1, +Args1
     html_nlp_string//1,    % +Name
     html_page/3,           % +Context, :Head_0, :Body_0
+    html_page_head//0,
     html_seplist//2,       % :Html_0, :Sep_0
     html_seplist//3,       % :Html_1, :Sep_0, +Args
     html_set//1,           % +Args
@@ -113,7 +114,6 @@ html({|html||...|}).
    html_if_then(0, html, ?, ?),
    html_if_then_else(0, html, html, ?, ?),
    html_page(+, html, html),
-   html_page_head(html, ?, ?),
    html_seplist(html, html, ?, ?),
    html_seplist(3, html, +, ?, ?),
    ignore(html, ?, ?),
@@ -150,7 +150,7 @@ html({|html||...|}).
        js(bootstrap),
        [
          ordered(true),
-         requires([jquery,tether,js('bootstrap.js')]),
+         requires([jquery,popper,tether,js('bootstrap.js')]),
          virtual(true)
        ]
      ).
@@ -159,7 +159,7 @@ html({|html||...|}).
        js(bootstrap),
        [
          ordered(true),
-         requires([jquery,tether,js('bootstrap.min.js')]),
+         requires([jquery,popper,tether,js('bootstrap.min.js')]),
          virtual(true)
        ]
      ).
@@ -194,6 +194,23 @@ html({|html||...|}).
        requires([bootstrap,'font-awesome',css('html_ext.css')]),
        virtual(true)
      ]
+   ).
+
+% Popper
+:- if(debugging(js(popper))).
+  :- html_resource(
+       js(popper),
+       [requires([js('popper.js')]),virtual(true)]
+     ).
+:- else.
+  :- html_resource(
+       js(popper),
+       [requires([js('popper.min.js')]),virtual(true)]
+     ).
+:- endif.
+:- html_resource(
+     popper,
+     [requires([js(popper)]),virtual(true)]
    ).
 
 % Tether
@@ -536,16 +553,20 @@ html_page(Context, Head_0, Body_0) :-
   format(current_output, "X-Content-Type-Options: nosniff~n", []),
   format(current_output, "X-Frame-Options: DENY~n", []),
   format(current_output, "X-XSS-Protection: 1; mode=block~n", []),
-  reply_html_page(Context, html_page_head(Head_0), Body_0).
+  reply_html_page(Context, Head_0, Body_0).
 
-html_page_head(Head_0) -->
-  html(
-    head([
-      \meta_ie_latest,
-      \meta_viewport,
-      \html_call(Head_0)
-    ])
-  ).
+
+
+%! html_page_head// is det.
+
+html_page_head -->
+  html([
+    \html_root_attribute(lang, en),
+    meta(charset='utf-8', []),
+    \meta_ie_latest,
+    \meta_viewport,
+    \favicon
+  ]).
 
 
 
