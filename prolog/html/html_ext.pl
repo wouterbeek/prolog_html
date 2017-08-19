@@ -22,7 +22,6 @@
     html_nlp_string//1,    % +Name
     html_page/2,           % :Head_0, :Body_0
     html_page/3,           % +Context, :Head_0, :Body_0
-    html_page_head//0,
     html_seplist//2,       % :Html_0, :Sep_0
     html_seplist//3,       % :Html_1, :Sep_0, +Args
     html_set//1,           % +Args
@@ -567,19 +566,6 @@ html_page_ :-
   format(current_output, "X-Content-Type-Options: nosniff~n", []),
   format(current_output, "X-Frame-Options: DENY~n", []),
   format(current_output, "X-XSS-Protection: 1; mode=block~n", []).
-
-
-
-%! html_page_head// is det.
-
-html_page_head -->
-  html([
-    \html_root_attribute(lang, en),
-    meta(charset='utf-8', []),
-    \meta_ie_latest,
-    \meta_viewport,
-    \favicon
-  ]).
 
 
 
