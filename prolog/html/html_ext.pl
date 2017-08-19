@@ -20,6 +20,7 @@
     html_if_then_else//3,  % :If_0, :Then_0, :Else_0
     html_maplist//2,       % :Html_1, +Args1
     html_nlp_string//1,    % +Name
+    html_page/2,           % :Head_0, :Body_0
     html_page/3,           % +Context, :Head_0, :Body_0
     html_page_head//0,
     html_seplist//2,       % :Html_0, :Sep_0
@@ -40,6 +41,8 @@
     menu//0,
     meta_authors//0,
     meta_description//1,   % +Desc
+    meta_ie_latest//0,
+    meta_viewport//0,
     navbar//3,             % :Brand_0, :Menu_0, :Right_0
     open_graph//2,         % +Key, +Value
     pipe//0,
@@ -113,6 +116,7 @@ html({|html||...|}).
    html_call(html, ?, ?),
    html_if_then(0, html, ?, ?),
    html_if_then_else(0, html, html, ?, ?),
+   html_page(html, html),
    html_page(+, html, html),
    html_seplist(html, html, ?, ?),
    html_seplist(3, html, +, ?, ?),
@@ -548,12 +552,21 @@ html_nlp_string(Name) -->
 
 
 %! html_page(:Head_0, :Body_0) is det.
+%! html_page(+Context, :Head_0, :Body_0) is det.
+
+html_page(Head_0, Body_0) :-
+  html_page_,
+  reply_html_page(Head_0, Body_0).
+
 
 html_page(Context, Head_0, Body_0) :-
+  html_page_,
+  reply_html_page(Context, Head_0, Body_0).
+
+html_page_ :-
   format(current_output, "X-Content-Type-Options: nosniff~n", []),
   format(current_output, "X-Frame-Options: DENY~n", []),
-  format(current_output, "X-XSS-Protection: 1; mode=block~n", []),
-  reply_html_page(Context, Head_0, Body_0).
+  format(current_output, "X-XSS-Protection: 1; mode=block~n", []).
 
 
 
