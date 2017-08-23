@@ -1,73 +1,74 @@
 :- module(
   html_ext,
   [
-    button//2,             % +Attributes, :Content_0
-    deck//2,               % :Card_1, +Items
-    deck//3,               % +Attributes, :Card_1, +Items
-    dropdown_menu//3,      % :Top_0, :Item_1, +Items
-    dropdown_menu//4,      % +Attributes, :Top_0, :Item_1, +Items
-    external_link//1,      % +Uri
+    button//2,               % +Attributes, :Content_0
+    deck//2,                 % :Card_1, +Items
+    deck//3,                 % +Attributes, :Card_1, +Items
+    dropdown_menu//3,        % :Top_0, :Item_1, +Items
+    dropdown_menu//4,        % +Attributes, :Top_0, :Item_1, +Items
+    external_link//1,        % +Uri
     favicon//0,
-    flag_icon//1,          % +LanguageTag
-    footer_panel//3,       % +Image, :Top_0, :Bottom_0
+    flag_icon//1,            % +LanguageTag
+    footer_panel//3,         % +Image, :Top_0, :Bottom_0
     google_analytics//0,
-    html_call//1,          % :Html_0
-    html_call//2,          % :Html_1, +Arg1
-    html_date_time//1,     % +Something
-    html_date_time//2,     % +Something, +Options
-    html_ellipsis//2,      % +String, +MaxLen
-    html_if_then//2,       % :If_0, :Then_0
-    html_if_then_else//3,  % :If_0, :Then_0, :Else_0
-    html_maplist//2,       % :Html_1, +Args1
-    html_nlp_string//1,    % +Name
-    html_page/2,           % :Head_0, :Body_0
-    html_page/3,           % +Context, :Head_0, :Body_0
-    html_seplist//2,       % :Html_0, :Sep_0
-    html_seplist//3,       % :Html_1, :Sep_0, +Args
-    html_set//1,           % +Args
-    html_set//2,           % :Html_1, +Args
-    html_site_init/1,      % +Dict
+    html_call//1,            % :Html_0
+    html_call//2,            % :Html_1, +Arg1
+    html_date_time//1,       % +Something
+    html_date_time//2,       % +Something, +Options
+    html_ellipsis//2,        % +String, +MaxLen
+    html_if_then//2,         % :If_0, :Then_0
+    html_if_then_else//3,    % :If_0, :Then_0, :Else_0
+    html_maplist//2,         % :Html_1, +Args1
+    html_nlp_string//1,      % +Name
+    html_page/2,             % :Head_0, :Body_0
+    html_page/3,             % +Context, :Head_0, :Body_0
+    html_seplist//2,         % :Html_0, :Sep_0
+    html_seplist//3,         % :Html_1, :Sep_0, +Args
+    html_set//1,             % +Args
+    html_set//2,             % :Html_1, +Args
+    html_site_init/1,        % +Dict
     html_space//0,
-    html_thousands//1,     % +Integer
-    icon//1,               % +Name
-    icon_button//1,        % +Name
-    icon_button//2,        % +Name, +Func
-    ignore//1,             % :Html_0
-    language_menu//1,      % +LanguageTags
-    logo/1,                % -Image
-    mail_icon//1,          % +Uri
-    mail_link_and_icon//1, % +Uri
+    html_thousands//1,       % +Integer
+    icon//1,                 % +Name
+    icon_button//1,          % +Name
+    icon_button//2,          % +Name, +Func
+    ignore//1,               % :Html_0
+    language_menu//1,        % +LanguageTags
+    logo/1,                  % -Image
+    mail_icon//1,            % +Uri
+    mail_link_and_icon//1,   % +Uri
     menu//0,
     meta_authors//0,
-    meta_description//1,   % +Desc
+    meta_description//1,     % +Desc
     meta_ie_latest//0,
     meta_viewport//0,
-    navbar//3,             % :Brand_0, :Menu_0, :Right_0
-    open_graph//2,         % +Key, +Value
+    navbar//3,               % :Brand_0, :Menu_0, :Right_0
+    navbar_dropdown_menu//4, % +Name, +Label, :Item_1, +Items
+    open_graph//2,           % +Key, +Value
     pipe//0,
-    row_1//1,              % :ContentA_0
-    row_1//2,              % +WidthsA, :ContentA_0
-    row_1//3,              % +Attributes, +WidthsA, :ContentA_0
-    row_3//3,              % :ContentA_0, :ContentB_0, :ContentC_0
-    row_3//6,              % +WidthsA, :ContentA_0, +WidthsB, :ContentB_0,
-                           % +WidthsC, :ContentC_0
-    row_3//7,              % +Attributes, +WidthsA, :ContentA_0, +WidthsB
-                           % :ContentB_0, +WidthsC, :ContentC_0
+    row_1//1,                % :ContentA_0
+    row_1//2,                % +WidthsA, :ContentA_0
+    row_1//3,                % +Attributes, +WidthsA, :ContentA_0
+    row_3//3,                % :ContentA_0, :ContentB_0, :ContentC_0
+    row_3//6,                % +WidthsA, :ContentA_0, +WidthsB, :ContentB_0,
+                             % +WidthsC, :ContentC_0
+    row_3//7,                % +Attributes, +WidthsA, :ContentA_0, +WidthsB
+                             % :ContentB_0, +WidthsC, :ContentC_0
     submit_button//0,
-    submit_button//1,      % :Content_0
-    table//1,              % :Body_0
-    table//2,              % :Header_0, :Body_0
-    table//3,              % :Caption_0, :Header_0, :Body_0
-    table_caption//1,      % :Caption_0
-    table_content//2,      % :Cell_1, +Rows
-    table_data_row//1,     % +Row
-    table_data_row//2,     % :Cell_1, +Row
-    table_header_row//1,   % +Row
-    table_header_row//2,   % :Cell_1, +Row
-    title//1,              % +Strings
-    tooltip//2,            % +String, :Content_0
-    vote_down//1,          % +Vote:integer
-    vote_up//1             % +Vote:integer
+    submit_button//1,        % :Content_0
+    table//1,                % :Body_0
+    table//2,                % :Header_0, :Body_0
+    table//3,                % :Caption_0, :Header_0, :Body_0
+    table_caption//1,        % :Caption_0
+    table_content//2,        % :Cell_1, +Rows
+    table_data_row//1,       % +Row
+    table_data_row//2,       % :Cell_1, +Row
+    table_header_row//1,     % +Row
+    table_header_row//2,     % :Cell_1, +Row
+    title//1,                % +Strings
+    tooltip//2,              % +String, :Content_0
+    vote_down//1,            % +Vote:integer
+    vote_up//1               % +Vote:integer
   ]
 ).
 :- reexport(library(http/html_head)).
@@ -929,16 +930,12 @@ navbar_toggler -->
 % @tbd What does `role(search)` do?
 
 navbar_dropdown_menu(Name, Label, Item_1, L) -->
-  html(
-    form([class=['navbar-form'],id=Name,role=search],
-      div(class='form-group', [
-        label(for=Name, [Label,": "]),
-        select([class=['form-control',selectpicker],id=Name],
-          \html_maplist(Item_1, L)
-        )
-      ])
+  html([
+    label(for=Name, [Label,": "]),
+    select([class=['form-control',selectpicker],id=Name],
+      \html_maplist(Item_1, L)
     )
-  ).
+  ]).
 
 
 
