@@ -89,6 +89,7 @@ html({|html||...|}).
 @version 2017/04-2017/08
 */
 
+:- use_module(library(aggregate)).
 :- use_module(library(apply)).
 :- use_module(library(atom_ext)).
 :- use_module(library(date_time)).
@@ -100,14 +101,13 @@ html({|html||...|}).
 :- use_module(library(http/jquery)).
 :- use_module(library(lists)).
 :- use_module(library(nlp/nlp_lang)).
-:- use_module(library(pairs)).
 :- use_module(library(settings)).
 :- use_module(library(string_ext)).
 :- use_module(library(uri/uri_ext)).
 
 :- dynamic
-    html:menu_item/3,
-    html:menu_item/4.
+    html:menu_item/2,
+    html:menu_item/3.
 
 :- html_meta
    button(+, html, ?, ?),
@@ -253,20 +253,20 @@ html({|html||...|}).
     table_header_cell(3, +, ?, ?),
     table_header_row(3, +, ?, ?).
 
-%! html:menu_item(?Major, ?Name, ?Label) is nondet.
+%! html:menu_item(?MajorHandler, ?MajorLabel) is nondet.
 %
 % Adds a top-level menu item to the menu.  The menu item has a rank
 % Major, an internal Name and a user-visible label Label.
 
-%! html:menu_item(?Name, ?Minor, ?Uri, ?Label) is nondet.
+%! html:menu_item(?MajorHandler, ?MinorHandler, ?MinorLabel) is nondet.
 %
 % Adds a menu-item under a top-level menu item with the given internal
 % Name.  Minor denotes the rank within the top-level menu item.
 
 :- multifile
     html:author/1,
+    html:menu_item/2,
     html:menu_item/3,
-    html:menu_item/4,
     html:html_hook//1,
     html:html_hook//2.
 
@@ -804,7 +804,6 @@ menu -->
   },
   html_maplist(major_menu(RequestUri), MajorMenus).
 
-
 % Flat menu item.
 major_menu(RequestUri, menu_item(Handle,Label)-[]) --> !,
   {
@@ -820,33 +819,26 @@ major_menu(RequestUri, menu_item(Handle,Label)-[]) --> !,
 major_menu(_, MajorItem-MinorItems) -->
   dropdown_menu(menu_item(MajorItem), menu_item, MinorItems).
 
-
 major_menus(MajorTrees) :-
-  findall(
-    Major-menu_item(Handle,Label),
-    (html:menu_item(Major, Handle, Label), Handle \== user),
-    Pairs
+  aggregate_all(
+    set(menu_item(MajorHandler,Label)),
+    html:menu_item(MajorHandler, Label),
+    MajorNodes
   ),
-  sort(1, @=<, Pairs, SortedPairs),
-  pairs_values(SortedPairs, MajorNodes),
   maplist(major_node_to_menu, MajorNodes, MajorTrees).
 
-
 major_node_to_menu(
-  menu_item(Handle1,Label1),
-  menu_item(Handle1,Label1)-MinorNodes
+  menu_item(MajorHandler,MajorLabel),
+  menu_item(MajorHandler,MajorLabel)-MinorNodes
 ) :-
-  findall(
-    Minor-menu_item(Handle2,Label2),
-    html:menu_item(Handle1, Minor, Handle2, Label2),
-    Pairs
-  ),
-  sort(1, @=<, Pairs, SortedPairs),
-  pairs_values(SortedPairs, MinorNodes).
+  aggregate_all(
+    set(menu_item(MinorHandler,MinorLabel)),
+    html:menu_item(MajorHandler, MinorHandler, MinorLabel),
+    MinorNodes
+  ).
 
-
-menu_item(menu_item(HandleId,Label)) -->
-  {http_link_to_id(HandleId, [], Uri)},
+menu_item(menu_item(Handler,Label)) -->
+  {http_link_to_id(Handler, [], Uri)},
   html(a(href=Uri, Label)).
 
 
