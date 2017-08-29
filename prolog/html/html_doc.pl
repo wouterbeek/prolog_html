@@ -1,7 +1,7 @@
 :- module(
   html_doc,
   [
-    http_param_table//1 % +Module
+    http_doc_handler//2 % +Module, +Handler
   ]
 ).
 
@@ -11,26 +11,59 @@
 @version 2016/08-2016/09, 2017/08
 */
 
+:- use_module(library(aggregate)).
 :- use_module(library(html/html_ext)).
+:- use_module(library(http/http_dispatch)).
+:- use_module(library(lists)).
 :- use_module(library(option)).
 
 :- multifile
-    http_param/1.
+    http_media_types/2,
+    http_param/1,
+    http_params/1.
 
 
 
 
 
-%! http_param_table(+Module:atom)// is det.
+http_doc_handler(Module, Handler) -->
+  {
+    http_current_handler(Location, Module:Handler),
+    Module:http_media_types(Handler, MediaTypes),
+    Module:http_params(Handler, Keys),
+    aggregate_all(
+      set(Key-Spec),
+      (
+        member(Key, Keys),
+        Module:http_param(Key, Spec)
+      ),
+      Params
+    )
+  },
+  html([
+    h1(code(Location)),
+    h2("Media Types"),
+    \table(
+      \media_type_header_row,
+      \html_maplist(media_type_data_row, MediaTypes)
+    ),
+    h2("HTTP parameters"),
+    \table(
+      \http_param_header_row,
+      \html_maplist(http_param_data_row, Params)
+    )
+  ]).
 
-http_param_table(Module) -->
-  {findall(Key-Spec, Module:http_param(Key, Spec), Pairs)},
-  table(
-    \param_header_row,
-    \html_maplist(param_data_row, Pairs)
-  ).
+media_type_header_row -->
+  table_header_row(["Media Type"]).
 
-param_data_row(Key-Spec) -->
+media_type_data_row(media(Supertype/Subtype,_)) -->
+  html(tr(td(code([Supertype,"/",Subtype])))).
+
+http_param_header_row -->
+  table_header_row(["Parameter","Type","Required","Default","Description"]).
+
+http_param_data_row(Key-Spec) -->
   html(
     tr([
       td(\param_key(Key)),
@@ -40,9 +73,6 @@ param_data_row(Key-Spec) -->
       td(\param_desc(Spec))
     ])
   ).
-
-param_header_row -->
-  table_header_row(["Parameter","Type","Required","Default","Description"]).
 
 param_key(Key) -->
   html(code(Key)).
