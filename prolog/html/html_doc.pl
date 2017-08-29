@@ -41,7 +41,7 @@ http_doc_handler(Module, Handler) -->
     )
   },
   html([
-    h1(code(Location)),
+    h1(a(href=Location, code(Location))),
     h2("Media Types"),
     \table(
       \media_type_header_row,
