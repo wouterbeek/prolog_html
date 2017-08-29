@@ -18,6 +18,7 @@
     html_ellipsis//2,        % +String, +MaxLen
     html_if_then//2,         % :If_0, :Then_0
     html_if_then_else//3,    % :If_0, :Then_0, :Else_0
+    html_convlist//2,        % :Html_1, +Args1
     html_maplist//2,         % :Html_1, +Args1
     html_nlp_string//1,      % +Name
     html_page/2,             % :Head_0, :Body_0
@@ -243,6 +244,7 @@ html({|html||...|}).
     html_if_then(0, 2, ?, ?),
     html_if_then_else(0, 2, 2, ?, ?),
     html_list_item(3, +, ?, ?),
+    html_convlist(3, +, ?, ?),
     html_maplist(3, +, ?, ?),
     html_set(3, +, ?, ?),
     table_content(3, +, ?, ?),
@@ -534,7 +536,18 @@ html_if_then_else(If_0, Then_0, Else_0) -->
 
 
 
-%! html_maplist(:Html_1, +Arguments1:list(compound))// .
+%! html_convlist(:Html_1, +Arguments1:list)// .
+
+html_convlist(_, []) --> !, [].
+html_convlist(Html_1, [H|T]) -->
+  html_call(Html_1, H), !,
+  html_convlist(Html_1, T).
+html_convlist(Html_1, [_|T]) -->
+  html_convlist(Html_1, T).
+
+
+
+%! html_maplist(:Html_1, +Arguments1:list)// .
 
 html_maplist(_, []) --> !, [].
 html_maplist(Html_1, [H|T]) -->
