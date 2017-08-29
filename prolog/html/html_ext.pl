@@ -4,8 +4,6 @@
     button//2,               % +Attributes, :Content_0
     deck//2,                 % :Card_1, +Items
     deck//3,                 % +Attributes, :Card_1, +Items
-    dropdown_menu//3,        % :Top_0, :Item_1, +Items
-    dropdown_menu//4,        % +Attributes, :Top_0, :Item_1, +Items
     external_link//1,        % +Uri
     favicon//0,
     flag_icon//1,            % +LanguageTag
@@ -104,6 +102,7 @@ html({|html||...|}).
 :- use_module(library(settings)).
 :- use_module(library(string_ext)).
 :- use_module(library(uri/uri_ext)).
+:- use_module(library(uuid)).
 
 :- dynamic
     html:menu_item/2,
@@ -111,8 +110,6 @@ html({|html||...|}).
 
 :- html_meta
    button(+, html, ?, ?),
-   dropdown_menu(html, :, +, ?, ?),
-   dropdown_menu(+, html, :, +, ?, ?),
    footer_panel(+, html, html, ?, ?),
    html_call(html, ?, ?),
    html_if_then(0, html, ?, ?),
@@ -238,12 +235,9 @@ html({|html||...|}).
 :- meta_predicate
     deck(3, +, ?, ?),
     deck(+, 3, +, ?, ?),
-    dropdown_menu(2, 3, +, ?, ?),
-    dropdown_menu(+, 2, 3, +, ?, ?),
     html_call(3, +, ?, ?),
     html_if_then(0, 2, ?, ?),
     html_if_then_else(0, 2, 2, ?, ?),
-    html_list_item(3, +, ?, ?),
     html_convlist(3, +, ?, ?),
     html_maplist(3, +, ?, ?),
     html_set(3, +, ?, ?),
@@ -311,33 +305,37 @@ deck(Attributes1, Card_1, L) -->
 
 
 
-%! dropdown_menu(:Top_0, :Item_1, +Items:list)// is det.
-%! dropdown_menu(+Attributes, :Top_0, :Item_1, +Items:list)// is det.
+%! dropdown_item(+Node:compound)// is det.
 
-dropdown_menu(Top_0, Item_1, L) -->
-  dropdown_menu([], Top_0, Item_1, L).
+dropdown_item(menu_item(Handler,Label)) -->
+  {http_link_to_id(Handler, [], Uri)},
+  html(a([class='dropdown-item',href=Uri], Label)).
 
 
-dropdown_menu(Attributes1, Top_0, Item_1, L) -->
-  {merge_attributes(Attributes1, [class=dropdown], Attributes2)},
+
+%! dropdown_menu(+MajorNode:compound, +MinorNodes:list(compound))// is det.
+
+dropdown_menu(MajorNode, MinorNodes) -->
+  {uuid(Id)},
   html(
-    li(Attributes2, [
+    li(class=[dropdown,'nav-item'], [
       a([
         'aria-expanded'=false,
         'aria-haspopup'=true,
-        class='dropdown-toggle',
+        class=['dropdown-toggle','nav-link'],
         'data-toggle'=dropdown,
+        id=Id,
         role=button
       ], [
-        Top_0,
+        \menu_item(MajorNode),
         \html_caret
       ]),
-      ul([class='dropdown-menu'], \html_maplist(html_list_item(Item_1), L))
+      div(
+        ['aria-labelledby'=Id,class='dropdown-menu'],
+        \html_maplist(dropdown_item, MinorNodes)
+      )
     ])
   ).
-
-html_list_item(Item_1, X) -->
-  html(li(\html_call(Item_1, X))).
 
 
 
@@ -816,8 +814,8 @@ major_menu(RequestUri, menu_item(Handle,Label)-[]) --> !,
     )
   ).
 % Nested menu items.
-major_menu(_, MajorItem-MinorItems) -->
-  dropdown_menu(menu_item(MajorItem), menu_item, MinorItems).
+major_menu(_, MajorNode-MinorNodes) -->
+  dropdown_menu(MajorNode, MinorNodes).
 
 major_menus(MajorTrees) :-
   aggregate_all(
@@ -837,9 +835,15 @@ major_node_to_menu(
     MinorNodes
   ).
 
+
+
+%! menu_item(+Node:compound)// .
+
 menu_item(menu_item(Handler,Label)) -->
-  {http_link_to_id(Handler, [], Uri)},
+  {catch(http_link_to_id(Handler, [], Uri), _, fail)}, !,
   html(a(href=Uri, Label)).
+menu_item(menu_item(_,Label)) -->
+  html(Label).
 
 
 
