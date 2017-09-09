@@ -30,7 +30,7 @@
 
 html_pagination_estimate(Page) -->
   {dict_get(total_number_of_results, Page, TotalNumberOfResults)}, !,
-  html([" (of ±",\html_thousands(TotalNumberOfResults)," in total)"]).
+  html([" (of ",\html_thousands(TotalNumberOfResults),")"]).
 html_pagination_estimate(_) --> [].
 
 
