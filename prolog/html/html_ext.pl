@@ -265,7 +265,7 @@ html({|html||...|}).
     html:html_hook//2.
 
 % jQuery
-:- set_setting(jquery:version, '3.2.1.min').
+:- set_setting(jquery:version, 'jquery-3.2.1.min.js').
 
 :- setting(
      html:google_analytics_id,
