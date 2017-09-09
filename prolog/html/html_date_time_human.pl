@@ -1,6 +1,7 @@
 :- module(
   html_date_time_human,
   [
+    html_date_time_human//1, % +Datetime
     html_date_time_human//2, % +Datetime, +Options
     html_today_human//1      % +Options
   ]
@@ -11,7 +12,7 @@
 DCG rules for parsing/generating human-readable HTML5 dates.
 
 @author Wouter Beek
-@version 2017/05, 2017/08
+@version 2017/05, 2017/08-2017/09
 */
 
 :- use_module(library(apply)).
@@ -25,7 +26,12 @@ DCG rules for parsing/generating human-readable HTML5 dates.
 
 
 
+%! html_date_time_human(+Datetime:dt)// is det.
 %! html_date_time_human(+Datetime:dt, +Options:list(compound))// is det.
+
+html_date_time_human(Datetime) -->
+  html_date_time_human(Datetime, []).
+
 
 html_date_time_human(dt(Y,Mo,Da,H,Mi,S,Off), Options) -->
   (   {ground(date(Y,Mo,Da,H,Mi,S,Off))}
