@@ -18,9 +18,10 @@
 :- use_module(library(option)).
 
 :- multifile
+    html_doc:custom_param_type//1,
     http_media_types/2,
-    http_param/1,
-    http_params/1.
+    http_param/2,
+    http_params/2.
 
 
 
@@ -114,6 +115,9 @@ param_type(Spec) -->
 param_type(Spec) -->
   {memberchk(string, Spec)}, !,
   html("String").
+% custom parameter types
+param_type(Spec) -->
+  html_doc:custom_param_type(Spec), !.
 
 param_required(Spec) -->
   {
