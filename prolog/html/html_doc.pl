@@ -121,13 +121,16 @@ param_type(Spec) -->
 
 param_required(Spec) -->
   {
-    option(optional(Bool), Spec, false),
+    (   option(default(_), Spec)
+    ->  Bool = false
+    ;   option(optional(Bool), Spec, false)
+    ),
     param_bool_label(Bool, Label)
   },
   html(Label).
 
-param_bool_label(true, "No").
-param_bool_label(false, "Yes").
+param_bool_label(false, "No").
+param_bool_label(true, "Yes").
 
 param_default(Spec) -->
   {option(default(Val), Spec, "")},
