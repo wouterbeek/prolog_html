@@ -796,8 +796,10 @@ mail_link_and_icon(Uri) -->
 
 menu -->
   {
-    http_current_request(Request),
-    memberchk(request_uri(RequestUri), Request),
+    ignore((
+      http_current_request(Request),
+      memberchk(request_uri(RequestUri), Request)
+    )),
     major_menus(MajorMenus)
   },
   html_maplist(major_menu(RequestUri), MajorMenus).
