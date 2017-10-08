@@ -107,10 +107,6 @@ param_type(Spec) -->
 param_type(Spec) -->
   {memberchk(rdf_literal, Spec)}, !,
   html("RDF literal").
-% rdf_term
-param_type(Spec) -->
-  {memberchk(rdf_term, Spec)}, !,
-  html("RDF term").
 % string
 param_type(Spec) -->
   {memberchk(string, Spec)}, !,

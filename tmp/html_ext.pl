@@ -148,6 +148,7 @@ html({|html||...|}).
 :- use_module(library(debug)).
 :- use_module(library(dict_ext)).
 :- use_module(library(html/html_pagination)).
+:- use_module(library(http/http_open)).
 :- use_module(library(http/http_server)).
 :- use_module(library(http/http_user)).
 :- use_module(library(http/json)).
@@ -156,7 +157,6 @@ html({|html||...|}).
 :- use_module(library(nlp/nlp_lang)).
 :- use_module(library(pair_ext)).
 :- use_module(library(pl_ext)).
-:- use_module(library(rdf/rdf_term)). % @hack
 :- use_module(library(setting_ext)).
 :- use_module(library(string_ext)).
 :- use_module(library(typecheck)).
@@ -1685,18 +1685,15 @@ twitter_profile(User) -->
 
 twitter_tweet(Tweet) -->
   {
-    http_open2(
-      uri(
-	https,
-	'publish.twitter.com',
-	[oembed],
-	[omit_script(true),url(Tweet)],
-	_
-      ),
-      In,
-      [request_header('Accept'='application/json')]
+    uri_comps(
+      Uri,
+      uri(https,'publish.twitter.com',[oembed],[omit_script(true),url(Tweet)])
     ),
-    json_read_dict(In, Dict, [value_string_as(atom)])
+    setup_call_cleanup(
+      http_open(Uri, In, [request_header('Accept'='application/json')]),
+      json_read_dict(In, Dict, [value_string_as(atom)]),
+      close(In)
+    )
   },
   [Dict.html].
 
