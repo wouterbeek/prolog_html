@@ -8,7 +8,7 @@
 /** <module> HTML documentation
 
 @author Wouter Beek
-@version 2016/08-2016/09, 2017/08
+@version 2016/08-2016/09, 2017/08, 2017/11
 */
 
 :- use_module(library(aggregate)).
@@ -16,6 +16,7 @@
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(lists)).
 :- use_module(library(option)).
+:- use_module(library(os_ext)).
 
 :- multifile
     html_doc:custom_param_type//1,
@@ -56,10 +57,11 @@ http_doc_handler(Module, Handler) -->
   ]).
 
 media_type_header_row -->
-  table_header_row(["Media Type"]).
+  table_header_row(["Media Type","Name"]).
 
 media_type_data_row(media(Supertype/Subtype,_)) -->
-  html(tr(td(code([Supertype,"/",Subtype])))).
+  {media_type_label(Supertype/Subtype, Label)},
+  html(tr([td(code([Supertype,"/",Subtype])),td(Label)])).
 
 http_param_header_row -->
   table_header_row(["Parameter","Type","Required","Default","Description"]).
