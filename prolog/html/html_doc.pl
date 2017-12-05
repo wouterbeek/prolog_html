@@ -8,13 +8,14 @@
 /** <module> HTML documentation
 
 @author Wouter Beek
-@version 2016/08-2016/09, 2017/08, 2017/11
+@version 2016/08-2017/12
 */
 
 :- use_module(library(aggregate)).
 :- use_module(library(html/html_ext)).
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(lists)).
+:- use_module(library(media_type)).
 :- use_module(library(option)).
 :- use_module(library(os_ext)).
 
@@ -59,9 +60,12 @@ http_doc_handler(Module, Handler) -->
 media_type_header_row -->
   table_header_row(["Media Type","Name"]).
 
-media_type_data_row(media(Supertype/Subtype,_)) -->
-  {media_type_label(Supertype/Subtype, Label)},
-  html(tr([td(code([Supertype,"/",Subtype])),td(Label)])).
+media_type_data_row(MediaType) -->
+  {
+    media_type_label(MediaType, Label),
+    media_type_comps(MediaType, Super, Sub, _)
+  },
+  html(tr([td(code([Super,"/",Sub])),td(Label)])).
 
 http_param_header_row -->
   table_header_row(["Parameter","Type","Required","Default","Description"]).
