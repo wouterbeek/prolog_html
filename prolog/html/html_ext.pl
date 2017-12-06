@@ -808,7 +808,11 @@ menu -->
 major_menu(RequestUri, menu_item(Handle,Label)-[]) --> !,
   {
     http_link_to_id(Handle, Uri),
-    (atom_postfix(RequestUri, Uri) -> Classes = [active] ; Classes = [])
+    (   ground(RequestUri),
+        atom_postfix(RequestUri, Uri)
+    ->  Classes = [active]
+    ;   Classes = []
+    )
   },
   html(
     li(class='nav-item',

@@ -1690,7 +1690,7 @@ twitter_tweet(Tweet) -->
       uri(https,'publish.twitter.com',[oembed],[omit_script(true),url(Tweet)])
     ),
     setup_call_cleanup(
-      http_open(Uri, In, [request_header('Accept'='application/json')]),
+      http_open2(Uri, In, [accept(json)]),
       json_read_dict(In, Dict, [value_string_as(atom)]),
       close(In)
     )
