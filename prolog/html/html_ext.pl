@@ -764,7 +764,7 @@ language_menu_item(LanguageTag0, LanguageTag) -->
 
 logo(Image) :-
   setting(html:logo, Base),
-  file_name_extension(Base, svg, Local),
+  file_name_extension(Base, png, Local),
   http_absolute_location(img(Local), Image).
 
 
