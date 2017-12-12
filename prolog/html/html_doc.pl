@@ -21,9 +21,9 @@
 
 :- multifile
     html_doc:custom_param_type//1,
-    http_media_types/2,
-    http_param/2,
-    http_params/2.
+    http:media_types/2,
+    http:param/2,
+    http:params/2.
 
 
 
@@ -32,13 +32,13 @@
 http_doc_handler(Module, Handler) -->
   {
     http_current_handler(Location, Module:Handler),
-    Module:http_media_types(Handler, MediaTypes),
-    Module:http_params(Handler, Keys),
+    http:media_types(Handler, MediaTypes),
+    http:params(Handler, Keys),
     aggregate_all(
       set(Key-Spec),
       (
         member(Key, Keys),
-        Module:http_param(Key, Spec)
+        http:param(Key, Spec)
       ),
       Params
     )
