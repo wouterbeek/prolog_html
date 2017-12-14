@@ -17,7 +17,6 @@
 :- use_module(library(lists)).
 :- use_module(library(media_type)).
 :- use_module(library(option)).
-:- use_module(library(os_ext)).
 
 :- multifile
     html_doc:custom_param_type//1,
@@ -101,6 +100,10 @@ param_type(Spec) -->
 param_type(Spec) -->
   {memberchk(float, Spec)}, !,
   html("float").
+% nonneg
+param_type(Spec) -->
+  {memberchk(nonneg, Spec)}, !,
+  html("n ≥ 0").
 % positive integer
 param_type(Spec) -->
   {memberchk(positive_integer, Spec)}, !,
