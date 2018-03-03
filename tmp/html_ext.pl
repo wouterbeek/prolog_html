@@ -144,9 +144,9 @@ html({|html||...|}).
 :- use_module(library(apply)).
 :- use_module(library(atom_ext)).
 :- use_module(library(call_ext)).
-:- use_module(library(dcg/dcg_ext)).
+:- use_module(library(dcg_ext)).
 :- use_module(library(debug)).
-:- use_module(library(dict_ext)).
+:- use_module(library(dict)).
 :- use_module(library(html/html_pagination)).
 :- use_module(library(http/http_open)).
 :- use_module(library(http/http_server)).
@@ -160,7 +160,7 @@ html({|html||...|}).
 :- use_module(library(setting_ext)).
 :- use_module(library(string_ext)).
 :- use_module(library(typecheck)).
-:- use_module(library(uri/uri_ext)).
+:- use_module(library(uri_ext)).
 
 :- html_meta
    alert(+, html, ?, ?),

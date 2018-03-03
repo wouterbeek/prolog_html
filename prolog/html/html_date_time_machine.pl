@@ -12,15 +12,16 @@
 @see Grammar http://www.w3.org/TR/html5/infrastructure.html#dates-and-times
 @see Examples http://www.w3.org/TR/html5/text-level-semantics.html#the-time-element
 @tbd We cannot expect rational representations for seconds yet.
-@version 2017/05, 2017/08
+@version 2017-2018
 */
 
-:- use_module(library(date_time)).
-:- use_module(library(dcg/dcg_ext)).
 :- use_module(library(error)).
+:- use_module(library(plunit)).
+
+:- use_module(library(date_time)).
+:- use_module(library(dcg)).
 :- use_module(library(list_ext)).
 :- use_module(library(math_ext)).
-:- use_module(library(plunit)).
 
 
 

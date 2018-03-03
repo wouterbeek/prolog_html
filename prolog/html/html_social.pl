@@ -11,14 +11,15 @@
 /** <module> HTML social
 
 @author Wouter Beek
-@version 2017/06-2017/08
+@version 2017-2018
 */
+
+:- use_module(library(settings)).
 
 :- use_module(library(html/html_ext)).
 :- use_module(library(http/http_server)).
 :- use_module(library(nlp/nlp_lang)).
-:- use_module(library(settings)).
-:- use_module(library(uri/uri_ext)).
+:- use_module(library(uri_ext)).
 
 :- html_meta
    twitter_follow_(+, html, ?, ?).

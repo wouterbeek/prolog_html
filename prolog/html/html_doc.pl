@@ -8,15 +8,16 @@
 /** <module> HTML documentation
 
 @author Wouter Beek
-@version 2016/08-2017/12
+@version 2016-2018
 */
 
 :- use_module(library(aggregate)).
-:- use_module(library(html/html_ext)).
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(lists)).
-:- use_module(library(media_type)).
 :- use_module(library(option)).
+
+:- use_module(library(html/html_ext)).
+:- use_module(library(media_type)).
 
 :- multifile
     html_doc:custom_param_type//1,
