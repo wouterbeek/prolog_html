@@ -41,6 +41,7 @@
     meta_description//1,     % +Desc
     meta_ie_latest//0,
     meta_viewport//0,
+    navbar//2,               % :Brand_0, :Menu_0
     navbar//3,               % :Brand_0, :Menu_0, :Right_0
     navbar_dropdown_menu//4, % +Name, +Label, :Item_1, +Items
     open_graph//2,           % +Key, +Value
@@ -121,6 +122,7 @@ html({|html||...|}).
    html_seplist(html, html, ?, ?),
    html_seplist(3, html, +, ?, ?),
    ignore(html, ?, ?),
+   navbar(html, html, ?, ?),
    navbar(html, html, html, ?, ?),
    navbar_dropdown_menu(+, +, 3, +, ?, ?),
    row_1(html, ?, ?),
@@ -912,7 +914,12 @@ meta_viewport -->
 
 
 
+%! navbar(:Brand_0, :Menu_0)// is det.
 %! navbar(:Brand_0, :Menu_0, :Right_0)// is det.
+
+navbar(Brand_0, Menu_0) -->
+  navbar(Brand_0, Menu_0, []).
+
 
 navbar(Brand_0, Menu_0, Right_0) -->
   html(
