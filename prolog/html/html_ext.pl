@@ -91,6 +91,7 @@ html({|html||...|}).
 :- use_module(library(aggregate)).
 :- use_module(library(apply)).
 :- use_module(library(debug)).
+:- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_wrapper)).
 :- use_module(library(http/jquery)).
 :- use_module(library(lists)).
