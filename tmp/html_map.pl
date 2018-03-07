@@ -1,11 +1,7 @@
 :- module(
   html_map,
   [
-    map//5,     % +QueryEndpoint
-                % +BrowserEndpoint
-                % ?CenterPoint
-                % ?Zoom
-                % ?FeatureCollection
+    map//5,     % +QueryEndpoint, +BrowserEndpoint, ?CenterPoint, ?Zoom, ?FeatureCollection
     map_param/2 % ?Key, ?Spec
   ]
 ).
@@ -17,12 +13,13 @@
 */
 
 :- use_module(library(debug)).
+:- use_module(library(http/js_write)).
+:- use_module(library(settings)).
+
 :- use_module(library(default)).
 :- use_module(library(html/html_ext)).
 :- use_module(library(http/http_ext)).
 :- use_module(library(http/http_resource)).
-:- use_module(library(http/js_write)).
-:- use_module(library(settings)).
 
 :- html_resource(
      css(map),
@@ -100,13 +97,8 @@ http:http_param(
 
 
 
-%! map(
-%!   +QueryEndpoint,
-%!   +BrowserEndpoint,
-%!   ?CenterPoint,
-%!   ?Zoom,
-%!   ?FeatureCollection
-%! )// is det.
+%! map(+QueryEndpoint, +BrowserEndpoint, ?CenterPoint, ?Zoom,
+%!     ?FeatureCollection)// is det.
 
 map(
   QueryEndpoint,
@@ -121,7 +113,7 @@ map(
     defsetting(default_zoom, Zoom),
     % @note The order for the central point in Leaflet is flipped.
     CenterPoint = [Lat,Lng],
-    defval(_{features: [], type: "FeatureCollection"}, FeatureCollection)
+    default_value(FeatureCollection, _{features: [], type: "FeatureCollection"})
   },
   html(div(id=mapid, [])),
   js_script({|javascript(
