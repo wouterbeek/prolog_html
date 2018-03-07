@@ -125,6 +125,9 @@
     upload_form//1          % +Spec
   ]
 ).
+:- reexport(library(http/html_head)).
+:- reexport(library(http/html_write)).
+:- reexport(library(http/js_write)).
 
 /** <module> HTML extensions
 
@@ -137,6 +140,27 @@ html({|html||...|}).
 @author Wouter Beek
 @version 2016/02-2017/03
 */
+
+:- use_module(library(apply)).
+:- use_module(library(atom_ext)).
+:- use_module(library(call_ext)).
+:- use_module(library(dcg_ext)).
+:- use_module(library(debug)).
+:- use_module(library(dict)).
+:- use_module(library(html/html_pagination)).
+:- use_module(library(http/http_open)).
+:- use_module(library(http/http_server)).
+:- use_module(library(http/http_user)).
+:- use_module(library(http/json)).
+:- use_module(library(licenses)).
+:- use_module(library(list_ext)).
+:- use_module(library(nlp/nlp_lang)).
+:- use_module(library(pair_ext)).
+:- use_module(library(pl_ext)).
+:- use_module(library(setting_ext)).
+:- use_module(library(string_ext)).
+:- use_module(library(typecheck)).
+:- use_module(library(uri_ext)).
 
 :- html_meta
    alert(+, html, ?, ?),

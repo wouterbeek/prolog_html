@@ -41,6 +41,7 @@
     meta_description//1,     % +Desc
     meta_ie_latest//0,
     meta_viewport//0,
+    navbar//2,               % :Brand_0, :Menu_0
     navbar//3,               % :Brand_0, :Menu_0, :Right_0
     navbar_dropdown_menu//4, % +Name, +Label, :Item_1, +Items
     open_graph//2,           % +Key, +Value
@@ -84,25 +85,27 @@ html({|html||...|}).
 ```
 
 @author Wouter Beek
-@version 2017/04-2017/08
+@version 2016-2018
 */
 
 :- use_module(library(aggregate)).
 :- use_module(library(apply)).
+:- use_module(library(debug)).
+:- use_module(library(http/http_wrapper)).
+:- use_module(library(http/jquery)).
+:- use_module(library(lists)).
+:- use_module(library(settings)).
+:- use_module(library(uuid)).
+
 :- use_module(library(atom_ext)).
 :- use_module(library(date_time)).
-:- use_module(library(debug)).
-:- use_module(library(dict_ext)).
+:- use_module(library(dict)).
 :- use_module(library(html/html_date_time_human)).
 :- use_module(library(html/html_date_time_machine)).
 :- use_module(library(http/http_server)).
-:- use_module(library(http/jquery)).
-:- use_module(library(lists)).
 :- use_module(library(nlp/nlp_lang)).
-:- use_module(library(settings)).
 :- use_module(library(string_ext)).
-:- use_module(library(uri/uri_ext)).
-:- use_module(library(uuid)).
+:- use_module(library(uri_ext)).
 
 :- dynamic
     html:menu_item/2,
@@ -119,6 +122,7 @@ html({|html||...|}).
    html_seplist(html, html, ?, ?),
    html_seplist(3, html, +, ?, ?),
    ignore(html, ?, ?),
+   navbar(html, html, ?, ?),
    navbar(html, html, html, ?, ?),
    navbar_dropdown_menu(+, +, 3, +, ?, ?),
    row_1(html, ?, ?),
@@ -910,7 +914,12 @@ meta_viewport -->
 
 
 
+%! navbar(:Brand_0, :Menu_0)// is det.
 %! navbar(:Brand_0, :Menu_0, :Right_0)// is det.
+
+navbar(Brand_0, Menu_0) -->
+  navbar(Brand_0, Menu_0, []).
+
 
 navbar(Brand_0, Menu_0, Right_0) -->
   html(

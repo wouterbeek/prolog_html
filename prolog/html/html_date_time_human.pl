@@ -12,14 +12,15 @@
 DCG rules for parsing/generating human-readable HTML5 dates.
 
 @author Wouter Beek
-@version 2017/05, 2017/08-2017/09
+@version 2017-2018
 */
 
 :- use_module(library(apply)).
-:- use_module(library(date_time)).
-:- use_module(library(dcg/dcg_ext)).
-:- use_module(library(dict_ext)).
 :- use_module(library(http/html_write)).
+
+:- use_module(library(date_time)).
+:- use_module(library(dcg)).
+:- use_module(library(dict)).
 :- use_module(library(nlp/nlp_lang)).
 
 
