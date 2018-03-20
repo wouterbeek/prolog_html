@@ -176,29 +176,12 @@ html({|html||...|}).
      [requires([css(bootstrap),js(bootstrap)]),virtual(true)]
    ).
 
-% FontAwesome
-:- if(debugging(css('font-awesome'))).
-  :- html_resource(
-       css('font-awesome'),
-       [requires([css('font-awesome-4.7.0.css')]),virtual(true)]
-     ).
-:- else.
-  :- html_resource(
-       css('font-awesome'),
-       [requires([css('font-awesome-4.7.0.min.css')]),virtual(true)]
-     ).
-:- endif.
-:- html_resource(
-     'font-awesome',
-     [requires([css('font-awesome')]),virtual(true)]
-   ).
-
 % HTML extensions
 :- html_resource(
      html_ext,
      [
        ordered(true),
-       requires([bootstrap,'font-awesome',css('html_ext.css')]),
+       requires([bootstrap,css('html_ext.css')]),
        virtual(true)
      ]
    ).
@@ -270,7 +253,7 @@ html({|html||...|}).
     html:html_hook//2.
 
 % jQuery
-:- set_setting(jquery:version, 'jquery-3.2.1.min.js').
+:- set_setting(jquery:version, 'jquery-3.3.1.min.js').
 
 :- setting(
      html:google_analytics_id,
