@@ -9,6 +9,7 @@
     flag_icon//1,            % +LanguageTag
     footer_panel//3,         % +Image, :Top_0, :Bottom_0
     google_analytics//0,
+    html_boolean//1,         % +Boolean
     html_call//1,            % :Html_0
     html_call//2,            % :Html_1, +Arg1
     html_date_time//1,       % +Something
@@ -393,6 +394,15 @@ ga('create', Id, 'auto');
 ga('send', 'pageview');
   |}).
 google_analytics --> [].
+
+
+
+%! html_boolean(+Boolean:boolean)// is det.
+
+html_boolean(false) --> !,
+  html("❌").
+html_boolean(true) -->
+  html("✓").
 
 
 
