@@ -796,21 +796,19 @@ menu -->
   {
     ignore((
       http_current_request(Request),
-      memberchk(request_uri(RequestUri), Request)
+      memberchk(request_uri(RequestUri), Request),
+      uri_comps(RequestUri, uri(_,_,RequestSegments,_,_))
     )),
     major_menus(MajorMenus)
   },
-  html_maplist(major_menu(RequestUri), MajorMenus).
+  html_maplist(major_menu(RequestSegments), MajorMenus).
 
 % Flat menu item.
-major_menu(RequestUri, menu_item(Handle,Label)-[]) --> !,
+major_menu(RequestSegments, menu_item(Handle,Label)-[]) --> !,
   {
     http_link_to_id(Handle, Uri),
-    (   ground(RequestUri),
-        atom_postfix(RequestUri, Uri)
-    ->  Classes = [active]
-    ;   Classes = []
-    )
+    uri_comps(Uri, uri(_,_,Segments,_,_)),
+    (prefix(RequestSegments, Segments) -> Classes = [active] ; Classes = [])
   },
   html(
     li(class='nav-item',
