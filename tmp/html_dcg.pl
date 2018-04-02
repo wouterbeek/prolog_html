@@ -22,7 +22,7 @@ DCG grammar for generating HTML snippets.
 @version 2015/07-2015/08, 2015/11-2015/12, 2017/08
 */
 
-:- use_module(library(dcg_ext)).
+:- use_module(library(dcg)).
 
 :- meta_predicate
     html_element(+, +, //, ?, ?).

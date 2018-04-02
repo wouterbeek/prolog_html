@@ -142,16 +142,17 @@ html({|html||...|}).
 */
 
 :- use_module(library(apply)).
+:- use_module(library(debug)).
+:- use_module(library(http/http_open)).
+:- use_module(library(http/json)).
+
 :- use_module(library(atom_ext)).
 :- use_module(library(call_ext)).
-:- use_module(library(dcg_ext)).
-:- use_module(library(debug)).
+:- use_module(library(dcg)).
 :- use_module(library(dict)).
 :- use_module(library(html/html_pagination)).
-:- use_module(library(http/http_open)).
 :- use_module(library(http/http_server)).
 :- use_module(library(http/http_user)).
-:- use_module(library(http/json)).
 :- use_module(library(licenses)).
 :- use_module(library(list_ext)).
 :- use_module(library(nlp/nlp_lang)).
