@@ -251,7 +251,18 @@ html({|html||...|}).
     html:menu_item/2,
     html:menu_item/3,
     html:html_hook//1,
-    html:html_hook//2.
+    html:html_hook//2,
+    http:not_found_media_type/2.
+
+http:not_found_media_type(Uri, media(text/html,_)) :-
+  html_page(
+    page(_Page,["Not Found"],_ExtraArgs),
+    [],
+    [
+      h1(["Path Not Found: ",code(Uri)]),
+      p(a(href='/',"↩ Return to root"))
+    ]
+  ).
 
 % jQuery
 :- set_setting(jquery:version, 'jquery-3.3.1.min.js').
