@@ -1,75 +1,75 @@
 :- module(
   html_ext,
   [
-    button//2,               % +Attributes, :Content_0
-    deck//2,                 % :Card_1, +Items
-    deck//3,                 % +Attributes, :Card_1, +Items
-    external_link//1,        % +Uri
+    button//2,                % +Attributes, :Content_0
+    deck//2,                  % :Card_1, +Items
+    deck//3,                  % +Attributes, :Card_1, +Items
+    external_link//1,         % +Uri
     favicon//0,
-    flag_icon//1,            % +LanguageTag
-    footer_panel//3,         % +Image, :Top_0, :Bottom_0
+    flag_icon//1,             % +LanguageTag
+    footer_panel//3,          % +Image, :Top_0, :Bottom_0
     google_analytics//0,
-    html_boolean//1,         % +Boolean
-    html_call//1,            % :Html_0
-    html_call//2,            % :Html_1, +Arg1
-    html_date_time//1,       % +Something
-    html_date_time//2,       % +Something, +Options
-    html_ellipsis//2,        % +String, +MaxLen
-    html_if_then//2,         % :If_0, :Then_0
-    html_if_then_else//3,    % :If_0, :Then_0, :Else_0
-    html_convlist//2,        % :Html_1, +Args1
-    html_maplist//2,         % :Html_1, +Args1
-    html_nlp_string//1,      % +Name
-    html_page/2,             % :Head_0, :Body_0
-    html_page/3,             % +Context, :Head_0, :Body_0
-    html_seplist//2,         % :Html_0, :Sep_0
-    html_seplist//3,         % :Html_1, :Sep_0, +Args
-    html_set//1,             % +Args
-    html_set//2,             % :Html_1, +Args
-    html_site_init/1,        % +Dict
+    html_boolean//1,          % +Boolean
+    html_call//1,             % :Html_0
+    html_call//2,             % :Html_1, +Arg1
+    html_date_time//1,        % +Something
+    html_date_time//2,        % +Something, +Options
+    html_ellipsis//2,         % +String, +MaxLen
+    html_if_then//2,          % :If_0, :Then_0
+    html_if_then_else//3,     % :If_0, :Then_0, :Else_0
+    html_convlist//2,         % :Html_1, +Args1
+    html_maplist//2,          % :Html_1, +Args1
+    html_nlp_string//1,       % +Name
+    html_page/2,              % :Head_0, :Body_0
+    html_page/3,              % +Context, :Head_0, :Body_0
+    html_seplist//2,          % :Html_0, :Sep_0
+    html_seplist//3,          % :Html_1, :Sep_0, +Args
+    html_set//1,              % +Args
+    html_set//2,              % :Html_1, +Args
+    html_site_init/1,         % +Dict
     html_space//0,
-    html_thousands//1,       % +Integer
-    icon//1,                 % +Name
-    icon_button//1,          % +Name
-    icon_button//2,          % +Name, +Func
-    ignore//1,               % :Html_0
-    language_menu//1,        % +LanguageTags
-    logo/1,                  % -Image
-    mail_icon//1,            % +Uri
-    mail_link_and_icon//1,   % +Uri
+    html_table//1,            % :Body_0
+    html_table//2,            % :Header_0, :Body_0
+    html_table//3,            % :Caption_0, :Header_0, :Body_0
+    html_table_caption//1,    % :Caption_0
+    html_table_content//2,    % :Cell_1, +Rows
+    html_table_data_row//1,   % +Row
+    html_table_data_row//2,   % :Cell_1, +Row
+    html_table_header_row//1, % +Row
+    html_table_header_row//2, % :Cell_1, +Row
+    html_thousands//1,        % +Integer
+    icon//1,                  % +Name
+    icon_button//1,           % +Name
+    icon_button//2,           % +Name, +Func
+    ignore//1,                % :Html_0
+    language_menu//1,         % +LanguageTags
+    logo/1,                   % -Image
+    mail_icon//1,             % +Uri
+    mail_link_and_icon//1,    % +Uri
     menu//0,
     meta_authors//0,
-    meta_description//1,     % +Desc
+    meta_description//1,      % +Desc
     meta_ie_latest//0,
     meta_viewport//0,
-    navbar//2,               % :Brand_0, :Menu_0
-    navbar//3,               % :Brand_0, :Menu_0, :Right_0
-    navbar_dropdown_menu//4, % +Name, +Label, :Item_1, +Items
-    open_graph//2,           % +Key, +Value
+    navbar//2,                % :Brand_0, :Menu_0
+    navbar//3,                % :Brand_0, :Menu_0, :Right_0
+    navbar_dropdown_menu//4,  % +Name, +Label, :Item_1, +Items
+    open_graph//2,            % +Key, +Value
     pipe//0,
-    row_1//1,                % :ContentA_0
-    row_1//2,                % +WidthsA, :ContentA_0
-    row_1//3,                % +Attributes, +WidthsA, :ContentA_0
-    row_3//3,                % :ContentA_0, :ContentB_0, :ContentC_0
-    row_3//6,                % +WidthsA, :ContentA_0, +WidthsB, :ContentB_0,
-                             % +WidthsC, :ContentC_0
-    row_3//7,                % +Attributes, +WidthsA, :ContentA_0, +WidthsB
-                             % :ContentB_0, +WidthsC, :ContentC_0
+    row_1//1,                 % :ContentA_0
+    row_1//2,                 % +WidthsA, :ContentA_0
+    row_1//3,                 % +Attributes, +WidthsA, :ContentA_0
+    row_3//3,                 % :ContentA_0, :ContentB_0, :ContentC_0
+    row_3//6,                 % +WidthsA, :ContentA_0, +WidthsB, :ContentB_0,
+                              % +WidthsC, :ContentC_0
+    row_3//7,                 % +Attributes, +WidthsA, :ContentA_0, +WidthsB
+                              % :ContentB_0, +WidthsC, :ContentC_0
     submit_button//0,
-    submit_button//1,        % :Content_0
-    table//1,                % :Body_0
-    table//2,                % :Header_0, :Body_0
-    table//3,                % :Caption_0, :Header_0, :Body_0
-    table_caption//1,        % :Caption_0
-    table_content//2,        % :Cell_1, +Rows
-    table_data_row//1,       % +Row
-    table_data_row//2,       % :Cell_1, +Row
-    table_header_row//1,     % +Row
-    table_header_row//2,     % :Cell_1, +Row
-    title//1,                % +Strings
-    tooltip//2,              % +String, :Content_0
-    vote_down//1,            % +Vote:integer
-    vote_up//1               % +Vote:integer
+    submit_button//1,         % :Content_0
+    title//1,                 % +Strings
+    tooltip//2,               % +String, :Content_0
+    vote_down//1,             % +Vote:integer
+    vote_up//1                % +Vote:integer
   ]
 ).
 :- reexport(library(http/html_head)).
@@ -123,6 +123,11 @@ html({|html||...|}).
    html_page(+, html, html),
    html_seplist(html, html, ?, ?),
    html_seplist(3, html, +, ?, ?),
+   html_table(html, ?, ?),
+   html_table(html, html, ?, ?),
+   html_table(html, html, html, ?, ?),
+   html_table_caption(html, ?, ?),
+   html_table_header(html, ?, ?),
    ignore(html, ?, ?),
    navbar(html, html, ?, ?),
    navbar(html, html, html, ?, ?),
@@ -134,11 +139,6 @@ html({|html||...|}).
    row_3(+, html, +, html, +, html, ?, ?),
    row_3(+, +, html, +, html, +, html, ?, ?),
    submit_button(html, ?, ?),
-   table(html, ?, ?),
-   table(html, html, ?, ?),
-   table(html, html, html, ?, ?),
-   table_caption(html, ?, ?),
-   table_header(html, ?, ?),
    tooltip(+, html, ?, ?).
 
 % Bootstrap
@@ -230,11 +230,11 @@ html({|html||...|}).
     html_convlist(3, +, ?, ?),
     html_maplist(3, +, ?, ?),
     html_set(3, +, ?, ?),
-    table_content(3, +, ?, ?),
-    table_data_cell(3, +, ?, ?),
-    table_data_row(3, +, ?, ?),
-    table_header_cell(3, +, ?, ?),
-    table_header_row(3, +, ?, ?).
+    html_table_content(3, +, ?, ?),
+    html_table_data_cell(3, +, ?, ?),
+    html_table_data_row(3, +, ?, ?),
+    html_table_header_cell(3, +, ?, ?),
+    html_table_header_row(3, +, ?, ?).
 
 %! html:menu_item(?MajorHandler, ?MajorLabel) is nondet.
 %
@@ -1052,97 +1052,97 @@ submit_button(Content_0) -->
 
 
 
-%! table(:Body_0)// is det.
-%! table(:Header_0, :Body_0)// is det.
-%! table(:Caption_0, :HeaderRow_0, :Body_0)// is det.
+%! html_table(:Body_0)// is det.
+%! html_table(:Header_0, :Body_0)// is det.
+%! html_table(:Caption_0, :HeaderRow_0, :Body_0)// is det.
 
-table(Body_0) -->
-  table(_, Body_0).
-
-
-table(Header_0, Body_0) -->
-  table(_, Header_0, Body_0).
+html_table(Body_0) -->
+  html_table(_, Body_0).
 
 
-table(Caption_0, Header_0, Body_0) -->
+html_table(Header_0, Body_0) -->
+  html_table(_, Header_0, Body_0).
+
+
+html_table(Caption_0, Header_0, Body_0) -->
   html(
     table(class=[block,table,'table-condensed','table-striped'], [
-      \table_caption(Caption_0),
-      \table_header(Header_0),
+      \html_table_caption(Caption_0),
+      \html_table_header(Header_0),
       tbody(Body_0)
     ])
   ).
 
 
 
-%! table_caption(:Caption_0)// is det.
+%! html_table_caption(:Caption_0)// is det.
 
-table_caption(Caption_0) -->
+html_table_caption(Caption_0) -->
   {var_goal(Caption_0)}, !, [].
-table_caption(Caption_0) -->
+html_table_caption(Caption_0) -->
   html(Caption_0).
 
 
 
-%! table_content(:Cell_1, +Rows:list)// is det.
+%! html_table_content(:Cell_1, +Rows:list)// is det.
 
-table_content(Cell_1, [head(HeaderRow)|DataRows]) -->
-  table(
-    \table_header_row(Cell_1, HeaderRow),
-    \html_maplist(table_data_row(Cell_1), DataRows)
+html_table_content(Cell_1, [head(HeaderRow)|DataRows]) -->
+  html_table(
+    \html_table_header_row(Cell_1, HeaderRow),
+    \html_maplist(html_table_data_row(Cell_1), DataRows)
   ).
 
 
 
-%! table_data_cell(+Term)// is det.
-%! table_data_cell(:Cell_1, +Term)// is det.
+%! html_table_data_cell(+Term)// is det.
+%! html_table_data_cell(:Cell_1, +Term)// is det.
 
-table_data_cell(Term) -->
-  table_data_cell(html_hook, Term).
+html_table_data_cell(Term) -->
+  html_table_data_cell(html_hook, Term).
 
 
-table_data_cell(Cell_1, Term) -->
+html_table_data_cell(Cell_1, Term) -->
   html(td(\html_call(Cell_1, Term))).
 
 
 
-%! table_data_row(+Row:list)// is det.
-%! table_data_row(:Cell_1, +Row:list)// is det.
+%! html_table_data_row(+Row:list)// is det.
+%! html_table_data_row(:Cell_1, +Row:list)// is det.
 
-table_data_row(Row) -->
-  table_data_row(html_hook, Row).
-
-
-table_data_row(Cell_1, Row) -->
-  html(tr(\html_maplist(table_data_cell(Cell_1), Row))).
+html_table_data_row(Row) -->
+  html_table_data_row(html_hook, Row).
 
 
+html_table_data_row(Cell_1, Row) -->
+  html(tr(\html_maplist(html_table_data_cell(Cell_1), Row))).
 
-%! table_header(:Header_0)// is det.
 
-table_header(Header_0) -->
+
+%! html_table_header(:Header_0)// is det.
+
+html_table_header(Header_0) -->
   {var_goal(Header_0)}, !, [].
-table_header(Header_0) -->
+html_table_header(Header_0) -->
   html(thead(Header_0)).
 
 
 
-%! table_header_cell(:Cell_1, +Term)// is det.
+%! html_table_header_cell(:Cell_1, +Term)// is det.
 
-table_header_cell(Cell_1, Term) -->
+html_table_header_cell(Cell_1, Term) -->
   html(th(\html_call(Cell_1, Term))).
 
 
 
-%! table_header_row(+Row:list)// is det.
-%! table_header_row(:Cell_1, +Row:list)// is det.
+%! html_table_header_row(+Row:list)// is det.
+%! html_table_header_row(:Cell_1, +Row:list)// is det.
 
-table_header_row(Row) -->
-  table_header_row(html_hook, Row).
+html_table_header_row(Row) -->
+  html_table_header_row(html_hook, Row).
 
 
-table_header_row(Cell_1, Row) -->
-  html(tr(\html_maplist(table_header_cell(Cell_1), Row))).
+html_table_header_row(Cell_1, Row) -->
+  html(tr(\html_maplist(html_table_header_cell(Cell_1), Row))).
 
 
 
