@@ -46,19 +46,19 @@ http_doc_handler(Module, Handler) -->
   html([
     h1(a(href=Location, code(Location))),
     h2("Media Types"),
-    \table(
+    \html_table(
       \media_type_header_row,
       \html_maplist(media_type_data_row, MediaTypes)
     ),
     h2("HTTP parameters"),
-    \table(
+    \html_table(
       \http_param_header_row,
       \html_maplist(http_param_data_row, Params)
     )
   ]).
 
 media_type_header_row -->
-  table_header_row(["Media Type","Name"]).
+  html_table_header_row(["Media Type","Name"]).
 
 media_type_data_row(MediaType) -->
   {
@@ -68,7 +68,7 @@ media_type_data_row(MediaType) -->
   html(tr([td(code([Super,"/",Sub])),td(Label)])).
 
 http_param_header_row -->
-  table_header_row(["Parameter","Type","Required","Default","Description"]).
+  html_table_header_row(["Parameter","Type","Required","Default","Description"]).
 
 http_param_data_row(Key-Spec) -->
   html(
