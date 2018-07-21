@@ -1601,11 +1601,11 @@ term(Term) -->
 
 
 
-%! truncate(+Str, +MaxLen)// is det.
+%! truncate(+Original:text, +MaxLength:nonneg)// is det.
 
-truncate(Str, MaxLen) -->
-  {string_truncate(Str, MaxLen, Prefix)},
-  ({Str == Prefix} -> html(Str) ; tooltip(Str, Prefix)).
+truncate(Original, MaxLength) -->
+  {string_prefix(Original, MaxLength, Display)},
+  ({Original == Display} -> html(Original) ; tooltip(Original, Display)).
 
 
 
