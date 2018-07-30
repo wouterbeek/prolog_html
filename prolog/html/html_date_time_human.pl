@@ -194,13 +194,14 @@ timezone_offset(Off) -->
 timezone_offset_(0) --> !,
   html("Z").
 timezone_offset_(Off) -->
+  sign(Off),
   {
     H is Off // 60,
     dcg_with_output_to(string(H0), generate_as_digits(H, 2)),
     Mi is Off mod 60,
     dcg_with_output_to(string(Mi0), generate_as_digits(Mi, 2))
   },
-  html([\sign(Off),H0,":",Mi0]).
+  html([H0,":",Mi0]).
 
 
 

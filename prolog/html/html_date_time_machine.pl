@@ -283,7 +283,7 @@ seconds_non_zero(S) -->
         fractional_weights(SFrac, Weights0),
         list_truncate(Weights0, 3, Weights)
       },
-      *(digit_weight, Weights)
+      'digit_weight*'(Weights)
   ).
 
 :- begin_tests(time).
