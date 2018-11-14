@@ -197,11 +197,11 @@ timezone_offset_(Off) -->
   sign(Off),
   {
     H is Off // 60,
-    dcg_with_output_to(string(H0), generate_as_digits(H, 2)),
+    string_phrase(generate_as_digits(H, 2), HString),
     Mi is Off mod 60,
-    dcg_with_output_to(string(Mi0), generate_as_digits(Mi, 2))
+    string_phrase(generate_as_digits(Mi, 2), MiString)
   },
-  html([H0,":",Mi0]).
+  html([HString,":",MiString]).
 
 
 
