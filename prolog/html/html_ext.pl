@@ -5,27 +5,28 @@
     deck//2,                  % :Card_1, +Items
     deck//3,                  % +Attributes, :Card_1, +Items
     external_link//1,         % +Uri
+    external_link//2,         % +Uri, :Content_0
     favicon//0,
     flag_icon//1,             % +LanguageTag
     footer_panel//3,          % +Image, :Top_0, :Bottom_0
     google_analytics//0,
     html_boolean//1,          % +Boolean
-    html_call//1,             % :Html_0
-    html_call//2,             % :Html_1, +Arg1
+    html_call//1,             % :Content_0
+    html_call//2,             % :Content_1, +Arg1
     html_date_time//1,        % +Something
     html_date_time//2,        % +Something, +Options
     html_ellipsis//2,         % +String, +MaxLen
     html_if_then//2,          % :If_0, :Then_0
     html_if_then_else//3,     % :If_0, :Then_0, :Else_0
-    html_convlist//2,         % :Html_1, +Args1
-    html_maplist//2,          % :Html_1, +Args1
+    html_convlist//2,         % :Content_1, +Args1
+    html_maplist//2,          % :Content_1, +Args1
     html_nlp_string//1,       % +Name
     html_page/2,              % :Head_0, :Body_0
     html_page/3,              % +Context, :Head_0, :Body_0
-    html_seplist//2,          % :Html_0, :Sep_0
-    html_seplist//3,          % :Html_1, :Sep_0, +Args
+    html_seplist//2,          % :Content_0, :Sep_0
+    html_seplist//3,          % :Content_1, :Sep_0, +Args
     html_set//1,              % +Args
-    html_set//2,              % :Html_1, +Args
+    html_set//2,              % :Content_1, +Args
     html_site_init/1,         % +Dict
     html_space//0,
     html_table//1,            % :Body_0
@@ -41,7 +42,7 @@
     icon//1,                  % +Name
     icon_button//1,           % +Name
     icon_button//2,           % +Name, +Func
-    ignore//1,                % :Html_0
+    ignore//1,                % :Content_0
     language_menu//1,         % +LanguageTags
     logo/1,                   % -Image
     mail_icon//1,             % +Uri
@@ -224,6 +225,7 @@ html({|html||...|}).
 :- meta_predicate
     deck(3, +, ?, ?),
     deck(+, 3, +, ?, ?),
+    external_link(1, //),
     html_call(3, +, ?, ?),
     html_if_then(0, 2, ?, ?),
     html_if_then_else(0, 2, 2, ?, ?),
@@ -340,9 +342,14 @@ dropdown_menu(MajorNode, MinorNodes) -->
 
 
 %! external_link(+Uri:atom)// is det.
+%! external_link(+Uri:atom, :Content_0)// is det.
 
 external_link(Uri) -->
-  html(a([href=Uri,target='_blank'], \icon(external_link))).
+  external_link(Uri, icon(external_link)).
+
+
+external_link(Uri, Content) -->
+  html(a([href=Uri,noreferrer,target='_blank'], Content).
 
 
 
@@ -417,15 +424,15 @@ html_boolean(true) -->
 
 
 
-%! html_call(:Html_0)// is det.
-%! html_call(:Html_1, +Arg1)// is det.
+%! html_call(:Content_0)// is det.
+%! html_call(:Content_1, +Arg1)// is det.
 
-html_call(Html_0, X, Y) :-
-  call(Html_0, X, Y).
+html_call(Content_0, X, Y) :-
+  call(Content_0, X, Y).
 
 
-html_call(Html_1, Arg1, X, Y) :-
-  call(Html_1, Arg1, X, Y).
+html_call(Content_1, Arg1, X, Y) :-
+  call(Content_1, Arg1, X, Y).
 
 
 
@@ -497,8 +504,8 @@ html_hook(Options, Term) -->
   html:html_hook(Options, Term), !.
 html_hook(_, Term) -->
   html:html_hook(Term), !.
-html_hook(_, Html_0) -->
-  html_call(Html_0).
+html_hook(_, Content_0) -->
+  html_call(Content_0).
 
 % atom
 html:html_hook(A) -->
@@ -543,23 +550,23 @@ html_if_then_else(If_0, Then_0, Else_0) -->
 
 
 
-%! html_convlist(:Html_1, +Arguments1:list)// .
+%! html_convlist(:Content_1, +Arguments1:list)// .
 
 html_convlist(_, []) --> !, [].
-html_convlist(Html_1, [H|T]) -->
-  html_call(Html_1, H), !,
-  html_convlist(Html_1, T).
-html_convlist(Html_1, [_|T]) -->
-  html_convlist(Html_1, T).
+html_convlist(Content_1, [H|T]) -->
+  html_call(Content_1, H), !,
+  html_convlist(Content_1, T).
+html_convlist(Content_1, [_|T]) -->
+  html_convlist(Content_1, T).
 
 
 
-%! html_maplist(:Html_1, +Arguments1:list)// .
+%! html_maplist(:Content_1, +Arguments1:list)// .
 
 html_maplist(_, []) --> !, [].
-html_maplist(Html_1, [H|T]) -->
-  html_call(Html_1, H),
-  html_maplist(Html_1, T).
+html_maplist(Content_1, [H|T]) -->
+  html_call(Content_1, H),
+  html_maplist(Content_1, T).
 
 
 
@@ -590,37 +597,37 @@ html_page_ :-
 
 
 
-%! html_seplist(:Html_0, :Sep_0)// is det.
-%! html_seplist(:Html_1, :Sep_0, +L)// is det.
+%! html_seplist(:Content_0, :Sep_0)// is det.
+%! html_seplist(:Content_1, :Sep_0, +L)// is det.
 
-html_seplist(Html_0, Sep_0) -->
-  Html_0,
+html_seplist(Content_0, Sep_0) -->
+  Content_0,
   Sep_0,
-  html_seplist(Html_0, Sep_0).
-html_seplist(Html_0, _) --> !,
-  Html_0.
+  html_seplist(Content_0, Sep_0).
+html_seplist(Content_0, _) --> !,
+  Content_0.
 html_seplist(_, _) --> !, [].
 
 
 html_seplist(_, _, []) --> !, [].
-html_seplist(Html_1, _, [H]) --> !,
-  html_call(Html_1, H).
-html_seplist(Html_1, Sep_0, [H1,H2|T]) -->
-  html_call(Html_1, H1),
+html_seplist(Content_1, _, [H]) --> !,
+  html_call(Content_1, H).
+html_seplist(Content_1, Sep_0, [H1,H2|T]) -->
+  html_call(Content_1, H1),
   Sep_0,
-  html_seplist(Html_1, Sep_0, [H2|T]).
+  html_seplist(Content_1, Sep_0, [H2|T]).
 
 
 
 %! html_set(+Args)// is det.
-%! html_set(:Html_1, +Args)// is det.
+%! html_set(:Content_1, +Args)// is det.
 
 html_set(Args) -->
   html_set(html_hook, Args).
 
 
-html_set(Html_1, Args) -->
-  html([&(123),\html_seplist(Html_1, html(","), Args),&(125)]).
+html_set(Content_1, Args) -->
+  html([&(123),\html_seplist(Content_1, html(","), Args),&(125)]).
 
 
 
@@ -732,10 +739,10 @@ icon_table(web,            globe,           "Visit Web site").
 
 
 
-%! ignore(:Html_0)// is det.
+%! ignore(:Content_0)// is det.
 
-ignore(Html_0) -->
-  html_call(Html_0), !.
+ignore(Content_0) -->
+  html_call(Content_0), !.
 ignore(_) --> [].
 
 
