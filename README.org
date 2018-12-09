@@ -1,4 +1,8 @@
-#+TITLE: prolog_web
+#+TITLE: prolog_html
 #+AUTHOR: Wouter Beek
 
-Build websites with Prolog.
+Library for generating HTML snippets using SWI-Prolog.
+
+The following web services use ~prolog_html~:
+
+  - [[https://sameas.cc]]
