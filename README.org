@@ -6,3 +6,16 @@ Library for generating HTML snippets using SWI-Prolog.
 The following web services use ~prolog_html~:
 
   - [[https://sameas.cc]]
+
+* Installation
+
+  1. Install [[http://www.swi-prolog.org][SWI-Prolog]].
+  2. Install [[https://github.com/wouterbeek.com/Prolog-Library-Collection][Prolog-Library-Collection]].
+  3. Clone this repository: ~git clone
+     https://github.com/wouterbeek/prolog_html~
+  4. Add the following lines to your ~.swiplrc~ file:
+
+     #+BEGIN_SRC prolog
+     user:file_search_path(foreign, '/your/path/to/prolog_html/lib/x86_64-linux').
+     user:file_search_path(library, '/your/path/to/prolog_html/prolog').
+     #+END_SRC

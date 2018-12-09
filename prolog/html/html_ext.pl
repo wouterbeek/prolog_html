@@ -116,6 +116,7 @@ html({|html||...|}).
 
 :- html_meta
    button(+, html, ?, ?),
+   external_link(+, html, ?, ?),
    footer_panel(+, html, html, ?, ?),
    html_call(html, ?, ?),
    html_if_then(0, html, ?, ?),
@@ -225,7 +226,6 @@ html({|html||...|}).
 :- meta_predicate
     deck(3, +, ?, ?),
     deck(+, 3, +, ?, ?),
-    external_link(1, //),
     html_call(3, +, ?, ?),
     html_if_then(0, 2, ?, ?),
     html_if_then_else(0, 2, 2, ?, ?),
@@ -348,8 +348,8 @@ external_link(Uri) -->
   external_link(Uri, icon(external_link)).
 
 
-external_link(Uri, Content) -->
-  html(a([href=Uri,noreferrer,target='_blank'], Content).
+external_link(Uri, Content_0) -->
+  html(a([href=Uri,noreferrer,target='_blank'], Content_0)).
 
 
 
