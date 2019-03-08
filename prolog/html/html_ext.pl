@@ -96,6 +96,7 @@ html({|html||...|}).
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_wrapper)).
 :- use_module(library(http/jquery)).
+:- use_module(library(http/rest_server)).
 :- use_module(library(lists)).
 :- use_module(library(settings)).
 :- use_module(library(uuid)).
@@ -310,7 +311,7 @@ deck(Attributes1, Card_1, L) -->
 %! dropdown_item(+Node:compound)// is det.
 
 dropdown_item(menu_item(Handler,Label)) -->
-  {http_link_to_id(Handler, [], Uri)},
+  {http_link_to_id(Handler, Uri)},
   html(a([class='dropdown-item',href=Uri], Label)).
 
 
@@ -860,7 +861,7 @@ major_node_to_menu(
 %! menu_item(+Node:compound)// .
 
 menu_item(menu_item(Handler,Label)) -->
-  {catch(http_link_to_id(Handler, [], Uri), _, fail)}, !,
+  {catch(http_link_to_id(Handler, Uri), _, fail)}, !,
   html(a(href=Uri, Label)).
 menu_item(menu_item(_,Label)) -->
   html(Label).
