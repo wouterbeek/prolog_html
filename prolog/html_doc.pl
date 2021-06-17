@@ -7,8 +7,6 @@
 
 /** <module> HTML documentation
 
-@author Wouter Beek
-@version 2016-2018
 */
 
 :- use_module(library(aggregate)).
@@ -16,7 +14,7 @@
 :- use_module(library(lists)).
 :- use_module(library(option)).
 
-:- use_module(library(html/html_ext)).
+:- use_module(library(html_ext)).
 :- use_module(library(media_type)).
 
 :- multifile
@@ -62,8 +60,8 @@ media_type_header_row -->
 
 media_type_data_row(MediaType) -->
   {
-    media_type_label(MediaType, Label),
-    media_type_comps(MediaType, Super, Sub, _)
+    MediaType = media(Super/Sub,_),
+    media_type_label(MediaType, Label)
   },
   html(tr([td(code([Super,"/",Sub])),td(Label)])).
 
@@ -128,7 +126,7 @@ param_type(Spec) -->
 param_required(Spec) -->
   {
     (   option(default(_), Spec)
-    ->  Bool = false
+    ->  Boolean = false
     ;   option(optional(Bool), Spec, false)
     ),
     param_bool_label(Bool, Label)

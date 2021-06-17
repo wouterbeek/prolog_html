@@ -9,14 +9,12 @@
 
 /** <module> HTML support for pagination
 
-@author Wouter Beek
-@version 2017-2018
 */
 
 :- use_module(library(dict)).
 
-:- use_module(library(html/html_ext)).
-:- use_module(library(http/http_pagination)).
+:- use_module(library(html_ext)).
+:- use_module(library(http_pagination)).
 :- use_module(library(pagination)).
 
 :- meta_predicate

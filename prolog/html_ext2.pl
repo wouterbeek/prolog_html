@@ -1,5 +1,5 @@
 :- module(
-  html_ext,
+  html_ext2,
   [
     button//2,                % +Attributes, :Content_0
     deck//2,                  % :Card_1, +Items
@@ -86,8 +86,6 @@ can always be included by using the following quasi-quoting notation:
 html({|html||...|}).
 ```
 
-@author Wouter Beek
-@version 2016-2018
 */
 
 :- use_module(library(aggregate)).
@@ -96,7 +94,6 @@ html({|html||...|}).
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_wrapper)).
 :- use_module(library(http/jquery)).
-:- use_module(library(http/rest_server)).
 :- use_module(library(lists)).
 :- use_module(library(settings)).
 :- use_module(library(uuid)).
@@ -104,10 +101,10 @@ html({|html||...|}).
 :- use_module(library(atom_ext)).
 :- use_module(library(date_time)).
 :- use_module(library(dict)).
-:- use_module(library(html/html_date_time_human)).
-:- use_module(library(html/html_date_time_machine)).
-:- use_module(library(http/http_server)).
-:- use_module(library(nlp/nlp_lang)).
+:- use_module(library(html_date_time_human)).
+:- use_module(library(html_date_time_machine)).
+:- use_module(library(nlp_lang)).
+:- use_module(library(rest_server)).
 :- use_module(library(string_ext)).
 :- use_module(library(uri_ext)).
 
@@ -445,7 +442,7 @@ html_caret -->
 
 
 %! html_date_time(+Datetime:dt)// is det.
-%! html_date_time(+Datetime:dt, +Options:list(compound))// is det.
+%! html_date_time(+Datetime:dt, +Options:options)// is det.
 %
 % Generates human- and machine-readable HTML for date/times.
 %
@@ -469,7 +466,7 @@ html_caret -->
 
 html_date_time(Datetime) -->
   {current_ltag(LanguageTag)}, !,
-  html_date_time(Datetime, _{ltag: LanguageTag}).
+  html_date_time(Datetime, options{ltag: LanguageTag}).
 
 
 html_date_time(Datetime1, Options) -->
@@ -495,10 +492,10 @@ html_ellipsis(String, MaxLen) -->
 
 
 %! html_hook(+Term)// is det.
-%! html_hook(+Options:list(compound), +Term)// is det.
+%! html_hook(+Options:options, +Term)// is det.
 
 html_hook(Term) -->
-  html_hook(_{}, Term).
+  html_hook(options{}, Term).
 
 
 html_hook(Options, Term) -->

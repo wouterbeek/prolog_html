@@ -11,8 +11,6 @@
 
 DCG rules for parsing/generating human-readable HTML5 dates.
 
-@author Wouter Beek
-@version 2017-2018
 */
 
 :- use_module(library(apply)).
@@ -21,17 +19,17 @@ DCG rules for parsing/generating human-readable HTML5 dates.
 :- use_module(library(date_time)).
 :- use_module(library(dcg)).
 :- use_module(library(dict)).
-:- use_module(library(nlp/nlp_lang)).
+:- use_module(library(nlp_lang)).
 
 
 
 
 
 %! html_date_time_human(+Datetime:dt)// is det.
-%! html_date_time_human(+Datetime:dt, +Options:list(compound))// is det.
+%! html_date_time_human(+Datetime:dt, +Options:options)// is det.
 
 html_date_time_human(Datetime) -->
-  html_date_time_human(Datetime, []).
+  html_date_time_human(Datetime, options{}).
 
 
 html_date_time_human(dt(Y,Mo,Da,H,Mi,S,Off), Options) -->
@@ -55,7 +53,7 @@ html_date_time_human(dt(Y,Mo,Da,H,Mi,S,Off), Options) -->
 
 
 
-%! html_today_human(+Options:list(compound))// is det.
+%! html_today_human(+Options:options)// is det.
 
 html_today_human(Options) -->
   {now(DT)},
@@ -63,29 +61,37 @@ html_today_human(Options) -->
 
 
 
-%! date(+Year:integer, +Month:between(1,12), +Day:between(1,31),
-%!      +Options:list(compound))// is det.
+%! date(+Year:integer,
+%!      +Month:between(1,12),
+%!      +Day:between(1,31),
+%!      +Options:options)// is det.
 
 date(Y, Mo, Da, Options) -->
   html([\month_day(Da, Options)," ",\month(Y, Mo, Options)]).
 
 
 
-%! floating_date_and_time(+Year:integer, +Month:between(1,12),
-%!                        +Day:between(1,31), +Hour:between(0,24),
-%!                        +Minute:between(0,59), +Second:float,
-%!                        +Options:list(compound))// is det.
+%! floating_date_and_time(+Year:integer,
+%!                        +Month:between(1,12),
+%!                        +Day:between(1,31),
+%!                        +Hour:between(0,24),
+%!                        +Minute:between(0,59),
+%!                        +Second:float,
+%!                        +Options:options)// is det.
 
 floating_date_and_time(Y, Mo, Da, H, Mi, S, Options) -->
   html([\date(Y, Mo, Da, Options)," ",\time(H, Mi, S, Options)]).
 
 
 
-%! global_date_and_time(+Year:integer, +Month:between(1,12),
-%!                      +Day:between(1,31), +Hour:between(0,24),
-%!                      +Minute:between(0,59), +Second:float,
+%! global_date_and_time(+Year:integer,
+%!                      +Month:between(1,12),
+%!                      +Day:between(1,31),
+%!                      +Hour:between(0,24),
+%!                      +Minute:between(0,59),
+%!                      +Second:float,
 %!                      +Offset:between(-840,840),
-%!                      +Options:list(compound))// is det.
+%!                      +Options:options)// is det.
 
 global_date_and_time(Y, Mo, Da, H, Mi, S, Off, Options) -->
   floating_date_and_time(Y, Mo, Da, H, Mi, S, Options),
@@ -93,21 +99,21 @@ global_date_and_time(Y, Mo, Da, H, Mi, S, Off, Options) -->
 
 
 
-%! hour(+Hour:between(0,24), +Options:list(compound))// is det.
+%! hour(+Hour:between(0,24), +Options:options)// is det.
 
 hour(H, _) -->
   html(span(class=hour, [\padding_zero(H),H])).
 
 
 
-%! minute(+Minute:between(0,59), +Options:list(compound))// is det.
+%! minute(+Minute:between(0,59), +Options:options)// is det.
 
 minute(Mi, _) -->
   html(span(class=minute, [\padding_zero(Mi),Mi])).
 
 
 
-%! month(+Month:between(1,12), +Options:list(compound))// is det.
+%! month(+Month:between(1,12), +Options:options)// is det.
 
 month(Mo, Options) -->
   {
@@ -120,15 +126,14 @@ month(Mo, Options) -->
 
 
 
-%! month(+Year:integer, +Month:between(1,12),
-%!       +Options:list(compound))// is det.
+%! month(+Year:integer, +Month:between(1,12), +Options:options)// is det.
 
 month(Y, Mo, Options) -->
   html([\month(Mo, Options)," ",\year(Y, Options)]).
 
 
 
-%! month_day(+Day:between(1,31), +Options:list(compound)) is det.
+%! month_day(+Day:between(1,31), +Options:options) is det.
 
 month_day(Da, Options) -->
   html(span(class='month-day', \month_day_inner(Da, Options))).
@@ -141,7 +146,7 @@ month_day_inner(Da, Options) -->
 
 
 
-%! ordinal(+N:nonneg, +Options:list(compound))// is det.
+%! ordinal(+N:nonneg, +Options:options)// is det.
 
 ordinal(N, Options) -->
   {
@@ -152,7 +157,7 @@ ordinal(N, Options) -->
 
 
 
-%! second(+Second:float, +Options:list(compound))// is det.
+%! second(+Second:float, +Options:options)// is det.
 
 second(S0, _) -->
   {S is floor(S0)},
@@ -170,8 +175,10 @@ sign(_)  -->
 
 
 
-%! time(+Hour:between(0,24), +Minute:between(0,59), +Second:float,
-%!      +Options:list(compound))// is det.
+%! time(+Hour:between(0,24),
+%!      +Minute:between(0,59),
+%!      +Second:float,
+%!      +Options:options)// is det.
 
 time(H, Mi, S, Options) -->
   html(
@@ -205,15 +212,16 @@ timezone_offset_(Off) -->
 
 
 
-%! year(+Year:integer, +Options:list(compound))// is det.
+%! year(+Year:integer, +Options:options)// is det.
 
 year(Y, _) -->
   html(span(class=year, Y)).
 
 
 
-%! yearless_date(+Month:between(1,12), +Day:between(1,31),
-%!               +Options:list(compound))// is det.
+%! yearless_date(+Month:between(1,12),
+%!               +Day:between(1,31),
+%!               +Options:options)// is det.
 
 yearless_date(Mo, Da, Options) -->
   html(

@@ -7,17 +7,16 @@
 
 /** <module> Machine-readable HTML date/time formats
 
-@author Wouter Beek
 @compat HTML 5
 @see Grammar http://www.w3.org/TR/html5/infrastructure.html#dates-and-times
 @see Examples http://www.w3.org/TR/html5/text-level-semantics.html#the-time-element
 @tbd We cannot expect rational representations for seconds yet.
-@version 2017-2018
 */
 
 :- use_module(library(error)).
 :- use_module(library(plunit)).
 
+:- use_module(library(abnf)).
 :- use_module(library(date_time)).
 :- use_module(library(dcg)).
 :- use_module(library(list_ext)).
@@ -283,7 +282,7 @@ seconds_non_zero(S) -->
         fractional_weights(SFrac, Weights0),
         list_truncate(Weights0, 3, Weights)
       },
-      'digit_weight*'(Weights)
+      '*!'(digit_weight, Weights)
   ).
 
 :- begin_tests(time).
